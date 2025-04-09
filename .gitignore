@@ -175,3 +175,10 @@ cython_debug/
 
 # Test logs
 test-logs/
+
+# Report files
+report.html
+result.xml
+
+# VSCode settings
+.vscode
