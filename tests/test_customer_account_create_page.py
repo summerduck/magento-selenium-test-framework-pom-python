@@ -1,47 +1,49 @@
 """Module containing tests for the customer account creation page."""
 
+from time import sleep
 from pytest import mark
+from data.enums import User
 
 
-@mark.smoke
-def test_open_customer_account_create_page(customer_account_create_page):
-    """Test to check if the customer account creation page is opened."""
-    customer_account_create_page.open_page()
-    customer_account_create_page.is_page_opened()
+class CustomerAccountCreatePageTest:
+    """Test class for customer account creation page functionality."""
 
+    # TODO: Delete this test after the other tests are implemented
+    @mark.smoke
+    def test_smoke(
+        self,
+        customer_account_create_page,
+    ):
+        """
+        Test to check if the customer account creation page is opened.
+        """
+        customer_account_create_page.open_page()
+        customer_account_create_page.is_page_opened()
 
-def test_create_customer_account(customer_account_create_page):
-    """Test to check if the customer account creation page is opened."""
-    customer_account_create_page.open_page()
-    customer_account_create_page.is_page_opened()
+    @mark.validation
+    def test_validate_required_fields_error_messages(
+        self,
+        customer_account_create_page,
+    ):
+        """
+        Test that appropriate error messages are displayed
+        when submitting form with empty required fields.
+        """
+        customer_account_create_page.open_page()
+        customer_account_create_page.is_page_opened()
+        customer_account_create_page.submit_form()
+        customer_account_create_page.get_error_messages()
+        customer_account_create_page.verify_all_required_field_error_messages()
 
-
-@mark.validation
-def test_empty_fields_validation(customer_account_create_page):
-    """Test form validation with all empty fields."""
-    # Open the page
-    customer_account_create_page.open_page()
-    customer_account_create_page.is_page_opened()
-
-    # Submit the form without filling any fields
-    customer_account_create_page.submit_form()
-
-    # Get error messages
-    error_messages = customer_account_create_page.get_error_messages()
-
-    # Verify error messages for each field
-    assert (
-        "This is a required field" in error_messages["firstname"]
-    ), "First name error message not displayed"
-    assert (
-        "This is a required field" in error_messages["lastname"]
-    ), "Last name error message not displayed"
-    assert (
-        "This is a required field" in error_messages["email"]
-    ), "Email error message not displayed"
-    assert (
-        "This is a required field" in error_messages["password"]
-    ), "Password error message not displayed"
-    assert (
-        "This is a required field" in error_messages["password_confirm"]
-    ), "Password confirmation error message not displayed"
+    @mark.account_creation
+    def test_create_customer_account(
+        self,
+        customer_account_create_page,
+    ):
+        """Test to check if the customer account creation page is opened."""
+        customer_account_create_page.open_page()
+        customer_account_create_page.is_page_opened()
+        customer_account_create_page.fill_form(user=User.random())
+        customer_account_create_page.submit_form()
+        customer_account_create_page.verify_account_creation()
+        sleep(10)

@@ -32,8 +32,8 @@ logger = logging.getLogger(__name__)
 def driver():
     """Fixture to initialize the Chrome driver with necessary options."""
     options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--auto-open-devtools-for-tabs")
+    # options.add_argument("--headless")
+    # options.add_argument("--auto-open-devtools-for-tabs")
     chrome_driver = webdriver.Chrome(options=options)
     yield chrome_driver
     chrome_driver.quit()
@@ -69,7 +69,7 @@ def pytest_addoption(parser):
     parser.addoption(
         "--user-pw",
         action="store",
-        help="USER PASSWORD",
+        help="USER_PASSWORD",
         default=os.getenv("USER_PASSWORD"),
     )
 
