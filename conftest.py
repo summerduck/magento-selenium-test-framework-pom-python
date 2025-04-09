@@ -33,8 +33,10 @@ def driver():
     """Fixture to initialize the Chrome driver with necessary options."""
     options = Options()
     options.add_argument("--headless")
+    options.add_argument("--auto-open-devtools-for-tabs")
     chrome_driver = webdriver.Chrome(options=options)
-    return chrome_driver
+    yield chrome_driver
+    chrome_driver.quit()
 
 
 @pytest.fixture()
