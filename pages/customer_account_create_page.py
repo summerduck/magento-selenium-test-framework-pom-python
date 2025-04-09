@@ -32,6 +32,12 @@ class CustomerAccountCreatePage(BasePage):
     PASSWORD_ERROR = (By.ID, "password-error")
     PASSWORD_CONFIRM_ERROR = (By.ID, "password-confirmation-error")
 
+    # Success message locator
+    SUCCESS_MESSAGE = (
+        By.XPATH,
+        "//div[contains(text(), 'Thank you for registering with Main Website Store.')]",
+    )
+
     def __init__(
         self,
         driver,
@@ -150,13 +156,25 @@ class CustomerAccountCreatePage(BasePage):
     ):
         """
         Fill the registration form with the provided values.
+
+        If user is provided, use the user data
+        If firstname, lastname, email, password are provided, use the provided values
+
+        Args:
+            user (UserData): User data to fill the form with
+            firstname (str): First name to fill the form with, optional
+            lastname (str): Last name to fill the form with, optional
+            email (str): Email to fill the form with, optional
+            password (str): Password to fill the form with, optional
         """
+        # If user is provided, use the user data
         if user:
             firstname = user.first_name
             lastname = user.last_name
             email = user.email
             password = user.password
 
+        # Log the values being used to fill the form
         logger.info(
             "Filling registration form with values: %s, %s, %s, %s",
             firstname,
@@ -165,11 +183,16 @@ class CustomerAccountCreatePage(BasePage):
             password,
         )
 
-        self.send_keys(self.FIRSTNAME_INPUT, firstname)
-        self.send_keys(self.LASTNAME_INPUT, lastname)
-        self.send_keys(self.EMAIL_INPUT, email)
-        self.send_keys(self.PASSWORD_INPUT, password)
-        self.send_keys(self.PASSWORD_CONFIRM_INPUT, password)
+        # Fill the form if the values are provided
+        if firstname:
+            self.send_keys(self.FIRSTNAME_INPUT, firstname)
+        if lastname:
+            self.send_keys(self.LASTNAME_INPUT, lastname)
+        if email:
+            self.send_keys(self.EMAIL_INPUT, email)
+        if password:
+            self.send_keys(self.PASSWORD_INPUT, password)
+            self.send_keys(self.PASSWORD_CONFIRM_INPUT, password)
         logger.debug("Registration form filled")
 
     def verify_account_creation(
@@ -179,11 +202,7 @@ class CustomerAccountCreatePage(BasePage):
         Verify account creation.
         """
         logger.info("Verifying account creation")
-        sleep(10)
-        success_message = self.driver.find_element(
-            By.XPATH,
-            "//div[contains(text(), 'Thank you for registering with Main Website Store.')]",
-        )
-        self.wait_for_element(success_message)
-        assert success_message.is_displayed(), "Success message is not displayed"
+        self.wait_for_page_load()
+        self.wait_for_element(self.SUCCESS_MESSAGE)
+        self.expect_to_be_visible(self.SUCCESS_MESSAGE)
         logger.debug("Account creation success message verified")

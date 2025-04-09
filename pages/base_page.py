@@ -1,6 +1,7 @@
 """Module containing BasePage class for base page interactions."""
 
 import logging
+from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -19,12 +20,24 @@ class BasePage:
         self.driver = driver
         self.wait = WebDriverWait(driver, 10)
 
-    def open_page(self):
+    # Navigation
+    def goto(self):
         """Open the page specified by the URL."""
         if self.page_url:
             self.driver.get(f"{self.base_url}{self.page_url}")
         else:
             raise NotImplementedError("Page can not be opened for this page class")
+
+    def wait_for_page_load(self):
+        """Wait for page to load."""
+        logger.debug("Waiting for page to load")
+        self.wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+
+    # Actions
+    def click(self, locator):
+        """Click on element."""
+        logger.debug("Clicking element with locator: %s", locator)
+        self.wait_for_element(locator).click()
 
     def find(self, locator: tuple):
         """Find an element on the page."""
@@ -34,15 +47,34 @@ class BasePage:
         """Find all elements on the page."""
         return self.driver.find_elements(*locator)
 
+    # Assertions
+    def expect_to_be_visible(self, locator):
+        """Check if element is visible on the page."""
+        logger.debug("Checking if element with locator: %s is visible", locator)
+        element = self.wait.until(EC.visibility_of_element_located(locator))
+        assert (
+            element is not None
+        ), f"Element with locator {locator} not found or not visible"
+
+    def expect_to_have_text(self, locator, text):
+        """Check if element has text."""
+        logger.debug("Checking if element with locator: %s has text: %s", locator, text)
+        assert self.wait.until(EC.text_to_be_present_in_element(locator, text)) is True
+
+    def expect_to_be_enabled(self, locator):
+        """Check if element is enabled."""
+        logger.debug("Checking if element with locator: %s is enabled", locator)
+        assert self.wait.until(EC.element_to_be_clickable(locator)) is True
+
+    def expect_to_be_disabled(self, locator):
+        """Check if element is disabled."""
+        logger.debug("Checking if element with locator: %s is disabled", locator)
+        assert self.wait.until(EC.element_to_be_clickable(locator)) is False
+
     def wait_for_element(self, locator):
         """Wait for element to be present on the page."""
         logger.debug("Waiting for element with locator: %s", locator)
         return self.wait.until(EC.presence_of_element_located(locator))
-
-    def click(self, locator):
-        """Click on element."""
-        logger.debug("Clicking element with locator: %s", locator)
-        self.wait_for_element(locator).click()
 
     def send_keys(self, locator, text):
         """Send keys to element."""

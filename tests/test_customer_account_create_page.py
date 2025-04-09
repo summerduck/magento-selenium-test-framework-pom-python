@@ -1,24 +1,11 @@
 """Module containing tests for the customer account creation page."""
 
-from time import sleep
 from pytest import mark
 from data.enums import User
 
 
 class CustomerAccountCreatePageTest:
     """Test class for customer account creation page functionality."""
-
-    # TODO: Delete this test after the other tests are implemented
-    @mark.smoke
-    def test_smoke(
-        self,
-        customer_account_create_page,
-    ):
-        """
-        Test to check if the customer account creation page is opened.
-        """
-        customer_account_create_page.open_page()
-        customer_account_create_page.is_page_opened()
 
     @mark.validation
     def test_validate_required_fields_error_messages(
@@ -40,10 +27,11 @@ class CustomerAccountCreatePageTest:
         self,
         customer_account_create_page,
     ):
-        """Test to check if the customer account creation page is opened."""
+        """
+        Test to check if the customer account creation page is opened.
+        """
         customer_account_create_page.open_page()
         customer_account_create_page.is_page_opened()
         customer_account_create_page.fill_form(user=User.random())
         customer_account_create_page.submit_form()
         customer_account_create_page.verify_account_creation()
-        sleep(10)

@@ -101,11 +101,3 @@ class User:
             email=email,
             password=os.getenv("USER_PASSWORD"),
         )
-
-
-user = User.STANDARD
-print(isinstance(user, UserData))
-# True
-random_user = User.random()
-print(isinstance(random_user, UserData))
-# True
