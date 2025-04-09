@@ -5,6 +5,7 @@ from time import sleep
 from selenium.webdriver.common.by import By
 from data.users import UserData, User
 from pages.base_page import BasePage
+from pages.locators import CustomerAccountCreatePageLocators as loc
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -14,28 +15,6 @@ class CustomerAccountCreatePage(BasePage):
     """Class for interacting with the customer account creation page."""
 
     page_url = "/customer/account/create/"
-
-    # Form locators
-    FIRSTNAME_INPUT = (By.ID, "firstname")
-    LASTNAME_INPUT = (By.ID, "lastname")
-    EMAIL_INPUT = (By.ID, "email_address")
-    PASSWORD_INPUT = (By.ID, "password")
-    PASSWORD_CONFIRM_INPUT = (By.ID, "password-confirmation")
-
-    # Submit button locator
-    SUBMIT_BUTTON = (By.CSS_SELECTOR, "button[title='Create an Account']")
-
-    # Error locators
-    FIRSTNAME_ERROR = (By.ID, "firstname-error")
-    LASTNAME_ERROR = (By.ID, "lastname-error")
-    EMAIL_ERROR = (By.ID, "email_address-error")
-    PASSWORD_ERROR = (By.ID, "password-error")
-    PASSWORD_CONFIRM_ERROR = (By.ID, "password-confirmation-error")
-
-    # Password strength meter locators
-    PASSWORD_STRENGTH_METER = (By.ID, "password-strength-meter")
-    PASSWORD_STRENGTH_METER_LABEL = (By.ID, "password-strength-meter-label")
-    PASSWORD_ERROR = (By.ID, "password-error")
 
     def __init__(
         self,
@@ -78,7 +57,7 @@ class CustomerAccountCreatePage(BasePage):
         Submit the registration form.
         """
         logger.info("Submitting registration form")
-        self.find(self.SUBMIT_BUTTON).click()
+        self.find(loc.SUBMIT_BUTTON).click()
         logger.info("Registration form submitted")
 
     def get_error_messages(
@@ -89,11 +68,11 @@ class CustomerAccountCreatePage(BasePage):
         """
         logger.info("Getting error messages from all form fields")
         self.error_messages = {
-            "firstname": self.get_text(self.FIRSTNAME_ERROR),
-            "lastname": self.get_text(self.LASTNAME_ERROR),
-            "email": self.get_text(self.EMAIL_ERROR),
-            "password": self.get_text(self.PASSWORD_ERROR),
-            "password_confirm": self.get_text(self.PASSWORD_CONFIRM_ERROR),
+            "firstname": self.get_text(loc.FIRSTNAME_ERROR),
+            "lastname": self.get_text(loc.LASTNAME_ERROR),
+            "email": self.get_text(loc.EMAIL_ERROR),
+            "password": self.get_text(loc.PASSWORD_ERROR),
+            "password_confirm": self.get_text(loc.PASSWORD_CONFIRM_ERROR),
         }
         logger.info("Error messages collected: %s", self.error_messages)
 
@@ -178,17 +157,17 @@ class CustomerAccountCreatePage(BasePage):
 
         # Fill the form if the values are provided
         if firstname:
-            self.send_keys(self.FIRSTNAME_INPUT, firstname)
+            self.send_keys(loc.FIRSTNAME_INPUT, firstname)
         if lastname:
-            self.send_keys(self.LASTNAME_INPUT, lastname)
+            self.send_keys(loc.LASTNAME_INPUT, lastname)
         if email:
-            self.send_keys(self.EMAIL_INPUT, email)
+            self.send_keys(loc.EMAIL_INPUT, email)
         if password:
-            self.send_keys(self.PASSWORD_INPUT, password)
+            self.send_keys(loc.PASSWORD_INPUT, password)
         if password_confirmation:
-            self.send_keys(self.PASSWORD_CONFIRM_INPUT, password_confirmation)
+            self.send_keys(loc.PASSWORD_CONFIRM_INPUT, password_confirmation)
         else:
-            self.send_keys(self.PASSWORD_CONFIRM_INPUT, password)
+            self.send_keys(loc.PASSWORD_CONFIRM_INPUT, password)
 
         logger.info("Registration form filled")
 
@@ -218,16 +197,16 @@ class CustomerAccountCreatePage(BasePage):
         logger.info("Verifying password strength meter")
 
         sleep(3)
-        assert self.get_text(self.PASSWORD_STRENGTH_METER_LABEL) == label
+        assert self.get_text(loc.PASSWORD_STRENGTH_METER_LABEL) == label
         logger.info("Password strength meter verified")
 
         password_class = self.__get_password_class(label)
         assert (
-            self.find(self.PASSWORD_STRENGTH_METER).get_attribute("class")
+            self.find(loc.PASSWORD_STRENGTH_METER).get_attribute("class")
             == password_class
         )
         logger.info("Password strength meter class verified")
 
         if message_type == "error" and error_message:
-            assert self.get_text(self.PASSWORD_ERROR) == error_message
+            assert self.get_text(loc.PASSWORD_ERROR) == error_message
             logger.info("Password error message verified")
