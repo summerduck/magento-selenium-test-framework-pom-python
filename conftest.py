@@ -16,6 +16,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from pages.customer_account_create_page import CustomerAccountCreatePage
 from pages.eco_friendly_page import EcoFriendlyPage
 from pages.sale_page import SalePage
+from pages.customer_account_page import CustomerAccountPage
 
 # Handle display of output log when using xdist
 sys.stdout = sys.stderr
@@ -43,6 +44,12 @@ def driver():
 def customer_account_create_page(driver: WebDriver):
     """Fixture to initialize the CustomerAccountCreatePage instance."""
     return CustomerAccountCreatePage(driver)
+
+
+@pytest.fixture()
+def customer_account_page(driver: WebDriver):
+    """Fixture to initialize the CustomerAccountPage instance."""
+    return CustomerAccountPage(driver)
 
 
 @pytest.fixture()
