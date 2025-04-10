@@ -1,1 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="31.792" timestamp="2025-04-09T15:47:15.506668" hostname="Summerducks-MacBookPro.local"><testcase classname="tests.test_customer_account_create_page" name="test_empty_fields_validation" time="31.767" /></testsuite></testsuites>
