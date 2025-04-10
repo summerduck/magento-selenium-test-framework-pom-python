@@ -78,27 +78,3 @@ class CustomerAccountCreatePageTest:
             message_type=message_type,
             error_message=error_message,
         )
-
-    @mark.validation
-    @mark.skip(reason="This test is not implemented yet")
-    def test_email_validation(
-        self,
-        customer_account_create_page,
-    ):
-        """
-        Email Validation:
-        Test invalid email formats (missing @, no domain, etc.)
-        Test valid email format
-        """
-        pass
-
-    @mark.account_creation
-    @mark.skip(reason="This test is not implemented yet")
-    def test_create_customer_account_duplicate_account(
-        self,
-        customer_account_create_page,
-    ):
-        """
-        Duplicate Account: Try registering with an email that already exists
-        """
-        pass

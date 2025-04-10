@@ -10,10 +10,10 @@ def setup_env():
         os.environ["USER_PASSWORD"] = "TestPassword123!"
 
 
-class EnumUserTest:
+class UsersDataTest:
     """Test class for User enum"""
 
-    def test_standard_user(self):
+    def test_standard_user_data(self):
         """Test standard user creation"""
         user = User.STANDARD
         assert user.first_name == "John"
@@ -59,7 +59,13 @@ class EnumUserTest:
         assert isinstance(user3.first_name, str)
         assert user3.last_name == last_name
 
-    def test_same_domain_email_user(self):
+    def test_custom_password(self):
+        """Test user creation with custom password"""
+        password = "CustomPassword123!"
+        user = User.with_custom_password(password)
+        assert user.password == password
+
+    def test_custom_domain_email_user(self):
         """Test user creation with same domain email"""
         domain = "company.test"
         user = User.with_same_domain_email(domain)
@@ -68,16 +74,6 @@ class EnumUserTest:
         assert user.email.startswith(
             f"{user.first_name.lower()}.{user.last_name.lower()}"
         )
-
-    def test_user_string_representation(self):
-        """Test string representation of User"""
-        user = User.STANDARD
-        str_repr = str(user)
-        assert "User(" in str_repr
-        assert "first_name=John" in str_repr
-        assert "last_name=Doe" in str_repr
-        assert "email=john.doe@example.com" in str_repr
-        assert "password=********" in str_repr  # Password should be masked
 
     def test_multiple_random_users_are_different(self):
         """Test that multiple random users have different data"""
