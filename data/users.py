@@ -101,3 +101,13 @@ class User:
             email=email,
             password=os.getenv("USER_PASSWORD"),
         )
+
+    @classmethod
+    def with_custom_password(cls, password: str) -> UserData:
+        """Generate random user with custom password"""
+        return UserData(
+            first_name=fake.first_name(),
+            last_name=fake.last_name(),
+            email=fake.email(),
+            password=password,
+        )

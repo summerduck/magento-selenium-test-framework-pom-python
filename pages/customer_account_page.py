@@ -35,8 +35,8 @@ class CustomerAccountPage(BasePage):
         """
         Open the customer account creation page.
         """
-        logger.info("Opening page: %s%s", self.base_url, self.page_url)
-        self.driver.get(self.customer_account_page_url)
+        logger.info("Opening page: %s", self.customer_account_page_url)
+        self.goto(self.customer_account_page_url)
 
     def is_page_opened(
         self,

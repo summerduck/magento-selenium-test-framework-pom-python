@@ -22,11 +22,8 @@ class BasePage:
 
     # Navigation methods
     def goto(self, url: str):
-        """Open the page specified by the URL."""
-        if self.page_url:
-            self.driver.get(f"{self.base_url}{self.page_url}")
-        else:
-            raise NotImplementedError("Page can not be opened for this page class")
+        """Navigate to the specified URL."""
+        self.driver.get(url)
 
     def wait_for_page_load(self):
         """Wait for page to load."""

@@ -28,7 +28,7 @@ class CustomerAccountCreatePageLocators(object):
     PASSWORD_CONFIRM_ERROR = (By.ID, "password-confirmation-error")
 
     # Password strength meter locators
-    PASSWORD_STRENGTH_METER = (By.ID, "password-strength-meter")
+    PASSWORD_STRENGTH_METER = (By.ID, "password-strength-meter-container")
     PASSWORD_STRENGTH_METER_LABEL = (By.ID, "password-strength-meter-label")
     PASSWORD_ERROR = (By.ID, "password-error")
 

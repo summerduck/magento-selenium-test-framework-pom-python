@@ -2,7 +2,7 @@
 
 import logging
 from time import sleep
-from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from data.users import UserData, User
 from pages.base_page import BasePage
 from pages.locators import CustomerAccountCreatePageLocators as loc
@@ -35,7 +35,7 @@ class CustomerAccountCreatePage(BasePage):
         """
         # Open the page
         logger.info("Opening page: %s", self.customer_account_create_page_url)
-        self.driver.get(self.customer_account_create_page_url)
+        self.goto(self.customer_account_create_page_url)
 
         # Check if the current URL matches the expected URL
         assert self.driver.current_url == self.customer_account_create_page_url
@@ -117,6 +117,57 @@ class CustomerAccountCreatePage(BasePage):
             self.error_messages,
         )
 
+    def fill_firstname(
+        self,
+        firstname: str | None = None,
+    ):
+        """
+        Fill the firstname field with the provided value.
+        """
+        if firstname:
+            self.send_keys(loc.FIRSTNAME_INPUT, firstname)
+
+    def fill_lastname(
+        self,
+        lastname: str | None = None,
+    ):
+        """
+        Fill the lastname field with the provided value.
+        """
+        if lastname:
+            self.send_keys(loc.LASTNAME_INPUT, lastname)
+
+    def fill_email(
+        self,
+        email: str | None = None,
+    ):
+        """
+        Fill the email field with the provided value.
+        """
+        if email:
+            self.send_keys(loc.EMAIL_INPUT, email)
+
+    def fill_password(
+        self,
+        password: str | None = None,
+    ):
+        """
+        Fill the password field with the provided value.
+        """
+        if password:
+            self.send_keys(loc.PASSWORD_INPUT, password)
+            self.send_keys(loc.PASSWORD_INPUT, Keys.ENTER)
+
+    def fill_password_confirmation(
+        self,
+        password_confirmation: str | None = None,
+    ):
+        """
+        Fill the password confirmation field with the provided value.
+        """
+        if password_confirmation:
+            self.send_keys(loc.PASSWORD_CONFIRM_INPUT, password_confirmation)
+
     def fill_form(
         self,
         user: UserData | None = None,
@@ -155,19 +206,17 @@ class CustomerAccountCreatePage(BasePage):
             password,
         )
 
+        # If password_confirmation is not provided, use the password
+        password_confirmation = (
+            password if password_confirmation is None else password_confirmation
+        )
+
         # Fill the form if the values are provided
-        if firstname:
-            self.send_keys(loc.FIRSTNAME_INPUT, firstname)
-        if lastname:
-            self.send_keys(loc.LASTNAME_INPUT, lastname)
-        if email:
-            self.send_keys(loc.EMAIL_INPUT, email)
-        if password:
-            self.send_keys(loc.PASSWORD_INPUT, password)
-        if password_confirmation:
-            self.send_keys(loc.PASSWORD_CONFIRM_INPUT, password_confirmation)
-        else:
-            self.send_keys(loc.PASSWORD_CONFIRM_INPUT, password)
+        self.fill_firstname(firstname)
+        self.fill_lastname(lastname)
+        self.fill_email(email)
+        self.fill_password(password)
+        self.fill_password_confirmation(password_confirmation)
 
         logger.info("Registration form filled")
 
@@ -182,6 +231,8 @@ class CustomerAccountCreatePage(BasePage):
                 return "password-strong"
             case "Very Strong":
                 return "password-very-strong"
+            case "No Password":
+                return "password-none"
             case _:
                 raise ValueError(f"Invalid password strength label: {label}")
 
@@ -195,18 +246,25 @@ class CustomerAccountCreatePage(BasePage):
         Verify the password strength meter.
         """
         logger.info("Verifying password strength meter")
+        self.wait_for_element(loc.PASSWORD_STRENGTH_METER)
 
-        sleep(3)
-        assert self.get_text(loc.PASSWORD_STRENGTH_METER_LABEL) == label
+        # Verify the password strength meter label
+        assert (
+            self.get_text(loc.PASSWORD_STRENGTH_METER_LABEL) == label
+        ), f"Password strength meter label is not {label}. Actual label: {self.get_text(loc.PASSWORD_STRENGTH_METER_LABEL)}"
         logger.info("Password strength meter verified")
 
+        # Verify the password strength meter class
         password_class = self.__get_password_class(label)
         assert (
             self.find(loc.PASSWORD_STRENGTH_METER).get_attribute("class")
             == password_class
-        )
+        ), f"Password strength meter class is not {password_class}. Actual class: {self.find(loc.PASSWORD_STRENGTH_METER).get_attribute('class')}"
         logger.info("Password strength meter class verified")
 
+        # Verify the password error message
         if message_type == "error" and error_message:
-            assert self.get_text(loc.PASSWORD_ERROR) == error_message
+            assert (
+                self.get_text(loc.PASSWORD_ERROR) == error_message
+            ), f"Password error message is not {error_message}. Actual message: {self.get_text(loc.PASSWORD_ERROR)}"
             logger.info("Password error message verified")

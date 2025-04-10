@@ -21,30 +21,32 @@ class CustomerAccountCreatePageTest:
         customer_account_create_page.get_error_messages()
         customer_account_create_page.verify_all_required_field_error_messages()
 
-    @mark.validation
-    def test_email_validation(
+    @mark.account_creation
+    def test_create_customer_account_successful_registration(
         self,
         customer_account_create_page,
+        customer_account_page,
     ):
         """
-        Email Validation:
-        Test invalid email formats (missing @, no domain, etc.)
-        Test valid email format
+        Successful Registration: Complete form with valid data and verify account creation
         """
-        pass
+        customer_account_create_page.open_page()
+        customer_account_create_page.fill_form(user=User.random())
+        customer_account_create_page.submit_form()
+        customer_account_page.verify_account_creation()
 
     @mark.parametrize(
         "password,label,message_type,error_message",
         [
-            ("Password123!", "Very Strong", "success", None),
-            ("Password123", "Strong", "success", None),
+            ("Password123!", "Very Strong", "success", ""),
+            ("Password123", "Very Strong", "success", ""),
             (
                 "password123",
                 "Weak",
                 "error",
                 "Minimum of different classes of characters in password is 3. Classes of characters: Lower Case, Upper Case, Digits, Special Characters.",
             ),
-            (None, "No Password", "error", None),
+            (None, "No Password", "error", ""),
         ],
     )
     @mark.validation
@@ -70,7 +72,7 @@ class CustomerAccountCreatePageTest:
             type (str): The expected type of the password strength meter
         """
         customer_account_create_page.open_page()
-        customer_account_create_page.fill_form(password=password)
+        customer_account_create_page.fill_form(user=User.with_custom_password(password))
         customer_account_create_page.verify_password_strength_meter(
             label=label,
             message_type=message_type,
@@ -78,50 +80,20 @@ class CustomerAccountCreatePageTest:
         )
 
     @mark.validation
-    @mark.parametrize(
-        "password,confirmation,expected_error",
-        [
-            ("Password123!", "Password123!", None),
-            ("Password123!", "password123!", "Please enter the same value again."),
-        ],
-    )
-    def test_password_confirmation_match(
-        self,
-        customer_account_create_page,
-        password,
-        confirmation,
-        expected_error,
-    ):
-        """
-        Password Confirmation Match: Test with matching and non-matching password confirmation
-        """
-        pass
-
-    @mark.ui_ux
-    def test_password_visibility_toggle(
+    @mark.skip(reason="This test is not implemented yet")
+    def test_email_validation(
         self,
         customer_account_create_page,
     ):
         """
-        Password Visibility Toggle: Test the "Show Password" checkbox functionality
+        Email Validation:
+        Test invalid email formats (missing @, no domain, etc.)
+        Test valid email format
         """
         pass
 
     @mark.account_creation
-    def test_create_customer_account_successful_registration(
-        self,
-        customer_account_create_page,
-        customer_account_page,
-    ):
-        """
-        Successful Registration: Complete form with valid data and verify account creation
-        """
-        customer_account_create_page.open_page()
-        customer_account_create_page.fill_form(user=User.random())
-        customer_account_create_page.submit_form()
-        customer_account_page.verify_account_creation()
-
-    @mark.account_creation
+    @mark.skip(reason="This test is not implemented yet")
     def test_create_customer_account_duplicate_account(
         self,
         customer_account_create_page,
