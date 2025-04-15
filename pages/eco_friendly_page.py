@@ -39,30 +39,18 @@ class EcoFriendlyPage(BasePage):
         self.goto(self.eco_friendly_page_url)
         self._verify_page_loaded()
 
+    def refresh_page(self):
+        """Refresh the page."""
+        logger.info("Refreshing page")
+        self.driver.refresh()
+        self._verify_page_loaded()
+
     def _verify_page_loaded(self):
         """Verify the eco-friendly page is loaded correctly."""
         logger.info("Verifying eco-friendly page is loaded")
         self.wait_for_page_load()
         self.expect_to_be_visible(loc.PAGE_TITLE)
-        self.expect_to_be_visible(loc.PRODUCT_GRID)
         time.sleep(0.5)
-
-    def get_product_count(self):
-        """Get the number of products displayed on the page."""
-        logger.info("Getting product count")
-        products = self.find_all(loc.PRODUCT_ITEMS_LIST)
-        return len(products)
-
-    # def sort_products(self, sort_by: str):
-    #     """
-    #     Sort products by the specified criteria.
-
-    #     Args:
-    #         sort_by (str): Sorting criteria (e.g., "position", "name", "price")
-    #     """
-    #     logger.info("Sorting products by: %s", sort_by)
-    #     self.select_dropdown_option(loc.SORT_BY_DROPDOWN, sort_by)
-    #     self.wait_for_page_load()
 
     def open_page_sort_products(self, sort_by: str):
         """
@@ -107,6 +95,7 @@ class EcoFriendlyPage(BasePage):
         self.sorted_names = [
             element.text for element in self.find_all(loc.PRODUCT_NAME)
         ]
+        logger.info("Product names: %s", self.sorted_names)
         return self.sorted_names
 
     def get_product_prices(self):
@@ -198,3 +187,43 @@ class EcoFriendlyPage(BasePage):
         total_count = self.get_text(loc.TOTAL_PRODUCTS_COUNT)
         logger.info("Total products count: %s", total_count)
         return int(total_count)
+
+    def verify_product_grid_mode(self):
+        """Verify product grid mode."""
+        logger.info("Verifying product grid mode")
+        self.expect_to_be_visible(loc.ACTIVE_GRID_MODE)
+        self.expect_to_be_visible(loc.PRODUCT_GRID)
+        logger.info("Product grid mode verified")
+
+    def verify_product_list_mode(self):
+        """Verify product list mode."""
+        logger.info("Verifying product list mode")
+        self.expect_to_be_visible(loc.ACTIVE_LIST_MODE)
+        self.expect_to_be_visible(loc.PRODUCT_LIST)
+        assert (
+            self.driver.current_url
+            == self.eco_friendly_page_url + "?product_list_mode=list"
+        )
+        logger.info("Product list mode verified")
+
+    def switch_to_product_grid_mode(self):
+        """Switch to product grid mode."""
+        logger.info("Switching to product grid mode")
+        self.click(loc.GRID_MODE)
+        self._verify_page_loaded()
+        logger.info("Switched to product grid mode")
+
+    def switch_to_product_list_mode(self):
+        """Switch to product list mode."""
+        logger.info("Switching to product list mode")
+        self.click(loc.LIST_MODE)
+        self._verify_page_loaded()
+        logger.info("Switched to product list mode")
+
+    def verify_product_data_consistency(self):
+        """Verify that product data remains consistent between mode switches."""
+        product_names_list_mode = self.get_product_names()
+        assert all(
+            name in self.sorted_names for name in product_names_list_mode
+        ), "Product names are not consistent between mode switches"
+        logger.info("Product data consistency verified")

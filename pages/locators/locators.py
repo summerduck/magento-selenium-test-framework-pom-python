@@ -41,6 +41,14 @@ class EcoFriendlyPageLocators(object):
     # Page title and main content locators
     PAGE_TITLE = (By.ID, "page-title-heading")
     PRODUCT_GRID = (By.CSS_SELECTOR, ".products-grid")
+    PRODUCT_LIST = (By.CSS_SELECTOR, ".products-list")
+
+    # Mode switch locators
+    GRID_MODE = (By.CSS_SELECTOR, ".modes-mode.mode-grid")
+    LIST_MODE = (By.CSS_SELECTOR, ".modes-mode.mode-list")
+
+    ACTIVE_GRID_MODE = (By.CSS_SELECTOR, ".modes-mode.active.mode-grid")
+    ACTIVE_LIST_MODE = (By.CSS_SELECTOR, ".modes-mode.active.mode-list")
 
     # Product list locators
     PRODUCT_ITEMS_LIST = (By.CLASS_NAME, "products wrapper grid products-grid")

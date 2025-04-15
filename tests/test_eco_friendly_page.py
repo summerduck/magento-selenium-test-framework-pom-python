@@ -26,36 +26,47 @@ class EcoFriendlyPageTest:
 
     @mark.parametrize("products_per_page", ["12", "24", "36"])
     @mark.ui_ux
-    def test_products_per_page(
+    def test_show_products_per_page(
         self,
         eco_friendly_page,
         products_per_page,
     ):
         """
-        Verify products per page functionality
+        Verify show products per page functionality
         """
         eco_friendly_page.open_page()
         eco_friendly_page.set_products_per_page(products_per_page)
         eco_friendly_page.count_products()
         eco_friendly_page.verify_products_per_page(products_per_page)
 
-    # @mark.ui_ux
-    # def test_price_sorting(self, eco_friendly_page,):
-    #     """
-    #     Verify price sorting functionality
-    #     """
-    #     eco_friendly_page.open_page()
-    #     initial_prices = eco_friendly_page.get_product_prices()
+    def test_product_view_mode(
+        self,
+        eco_friendly_page,
+    ):
+        """
+        Verify mode switch functionality
+        """
+        # Verify default mode is product grid
+        eco_friendly_page.open_page()
+        eco_friendly_page.verify_product_grid_mode()
 
-    #     eco_friendly_page.sort_products("price")
-    #     sorted_prices = eco_friendly_page.get_product_prices()
+        # Check if the user's mode preference is preserved after page refresh
+        eco_friendly_page.refresh_page()
+        eco_friendly_page.verify_product_grid_mode()
 
-    #     # Convert price strings to float for comparison
-    #     initial_prices_float = [
-    #         float(price.replace("$", "")) for price in initial_prices
-    #     ]
-    #     sorted_prices_float = [float(price.replace("$", "")) for price in sorted_prices]
+        # Get product names list in default mode
+        eco_friendly_page.get_product_names()
 
-    #     assert sorted_prices_float == sorted(
-    #         initial_prices_float
-    #     ), "Products not sorted by price"
+        # Switch to product list mode
+        eco_friendly_page.switch_to_product_list_mode()
+        eco_friendly_page.verify_product_list_mode()
+
+        # Verify that product data remains consistent between mode switches
+        eco_friendly_page.verify_product_data_consistency()
+
+        # Switch back to product grid mode
+        eco_friendly_page.switch_to_product_grid_mode()
+        eco_friendly_page.verify_product_grid_mode()
+
+        # Verify that product data remains consistent between mode switches
+        eco_friendly_page.verify_product_data_consistency()
