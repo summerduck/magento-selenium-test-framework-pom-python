@@ -27,7 +27,7 @@ class BasePage:
 
     def wait_for_page_load(self):
         """Wait for page to load."""
-        logger.info("Waiting for page to load")
+        logger.debug("Waiting for page to load")
 
         # Method 1: Check if body tag is present
         self.wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
@@ -98,7 +98,7 @@ class BasePage:
     # Actions
     def click(self, locator):
         """Click on element."""
-        logger.info("Clicking element with locator: %s", locator)
+        logger.debug("Clicking element with locator: %s", locator)
         self.wait_for_element(locator).click()
 
     def find(self, locator: tuple):
@@ -112,7 +112,7 @@ class BasePage:
     # Assertions
     def expect_to_be_visible(self, locator):
         """Check if element is visible on the page."""
-        logger.info("Checking if element with locator: %s is visible", locator)
+        logger.debug("Checking if element with locator: %s is visible", locator)
         element = self.wait.until(EC.visibility_of_element_located(locator))
         assert (
             element is not None
@@ -120,35 +120,37 @@ class BasePage:
 
     def expect_to_have_text(self, locator, text):
         """Check if element has text."""
-        logger.info("Checking if element with locator: %s has text: %s", locator, text)
+        logger.debug("Checking if element with locator: %s has text: %s", locator, text)
         assert self.wait.until(EC.text_to_be_present_in_element(locator, text)) is True
 
     def expect_to_be_enabled(self, locator):
         """Check if element is enabled."""
-        logger.info("Checking if element with locator: %s is enabled", locator)
+        logger.debug("Checking if element with locator: %s is enabled", locator)
         assert self.wait.until(EC.element_to_be_clickable(locator)) is True
 
     def expect_to_be_disabled(self, locator):
         """Check if element is disabled."""
-        logger.info("Checking if element with locator: %s is disabled", locator)
+        logger.debug("Checking if element with locator: %s is disabled", locator)
         assert self.wait.until(EC.element_to_be_clickable(locator)) is False
 
     def wait_for_element(self, locator):
         """Wait for element to be present on the page."""
-        logger.info("Waiting for element with locator: %s", locator)
+        logger.debug("Waiting for element with locator: %s", locator)
         return self.wait.until(EC.presence_of_element_located(locator))
 
     def wait_for_timeout(self, timeout: float):
         """Wait for timeout using Selenium's built-in sleep."""
-        logger.info("Waiting for timeout: %s seconds", timeout)
+        logger.debug("Waiting for timeout: %s seconds", timeout)
         self.driver.implicitly_wait(timeout)
 
     def send_keys(self, locator, text):
         """Send keys to element."""
         if text is None:
-            logger.info("Text is None, skipping send_keys for locator: %s", locator)
+            logger.debug("Text is None, skipping send_keys for locator: %s", locator)
             return
-        logger.info("Sending keys to element with locator: %s, text: %s", locator, text)
+        logger.debug(
+            "Sending keys to element with locator: %s, text: %s", locator, text
+        )
         self.wait_for_element(locator).send_keys(text)
 
     def get_text(self, locator):
@@ -162,10 +164,10 @@ class BasePage:
             str: Empty string if element not found or has no text
         """
         try:
-            logger.info("Getting text from element with locator: %s", locator)
+            logger.debug("Getting text from element with locator: %s", locator)
             element = self.wait_for_element(locator)
             text = element.text if element else ""
-            logger.info("Got text: '%s'", text)
+            logger.debug("Got text: '%s'", text)
             return text
         except Exception as e:
             logger.warning("Failed to get text from element %s: %s", locator, str(e))
