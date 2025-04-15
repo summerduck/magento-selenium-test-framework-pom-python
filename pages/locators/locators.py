@@ -44,13 +44,20 @@ class EcoFriendlyPageLocators(object):
 
     # Product list locators
     PRODUCT_ITEMS_LIST = (By.CLASS_NAME, "products wrapper grid products-grid")
+    PRODUCT_ITEM = (By.CLASS_NAME, "product-item-info")
     PRODUCT_NAME = (By.CSS_SELECTOR, ".product-item-link")
-    PRODUCT_PRICE = (By.CSS_SELECTOR, ".price")
+    PRODUCT_PRICE = (By.CLASS_NAME, "price-wrapper ")
 
     # Toolbar locators
     TOOLBAR = (By.CSS_SELECTOR, ".toolbar.toolbar-products")
     SORT_BY_DROPDOWN = (By.ID, "sorter")
-    SHOW_PER_PAGE_DROPDOWN = (By.ID, "limiter")
+    SHOW_PER_PAGE_DROPDOWN = (By.XPATH, "(//select[@id='limiter'])[2]")
+    SHOW_PER_PAGE_DROPDOWN_OPTION = (
+        By.XPATH,
+        "(//select[@id='limiter'])[2]//option[text()='%s']",
+    )
+    TOOLBAR_AMOUNT = (By.CSS_SELECTOR, "#toolbar-amount")
+    TOTAL_PRODUCTS_COUNT = (By.CSS_SELECTOR, ".toolbar-amount span:last-child")
 
     # Product action locators
     ADD_TO_CART_BUTTON = (By.CSS_SELECTOR, "button.action.tocart.primary")

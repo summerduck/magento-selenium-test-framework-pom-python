@@ -4,6 +4,7 @@ import logging
 import time
 from pages.base_page import BasePage
 from pages.locators import EcoFriendlyPageLocators as loc
+from selenium.webdriver.common.by import By
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -24,6 +25,8 @@ class EcoFriendlyPage(BasePage):
         super().__init__(driver)
         self.eco_friendly_page_url = f"{self.base_url}{self.page_url}"
         self.sorted_names = []
+        self.sorted_prices = []
+        self.products_per_page = None
 
     def open_page(
         self,
@@ -34,9 +37,9 @@ class EcoFriendlyPage(BasePage):
         # Open the page
         logger.info("Opening page: %s", self.eco_friendly_page_url)
         self.goto(self.eco_friendly_page_url)
-        self.verify_page_loaded()
+        self._verify_page_loaded()
 
-    def verify_page_loaded(self):
+    def _verify_page_loaded(self):
         """Verify the eco-friendly page is loaded correctly."""
         logger.info("Verifying eco-friendly page is loaded")
         self.wait_for_page_load()
@@ -82,7 +85,7 @@ class EcoFriendlyPage(BasePage):
             )
 
         self.goto(sort_urls[sort_by])
-        self.verify_page_loaded()
+        self._verify_page_loaded()
 
     def set_products_per_page(self, count: str):
         """
@@ -92,28 +95,106 @@ class EcoFriendlyPage(BasePage):
             count (str): Number of products per page (e.g., "12", "24", "36")
         """
         logger.info("Setting products per page to: %s", count)
-        self.select_dropdown_option(loc.SHOW_PER_PAGE_DROPDOWN, count)
+        self.wait_for_element(loc.SHOW_PER_PAGE_DROPDOWN).click()
+        self.wait_for_element(
+            (By.XPATH, f"(//select[@id='limiter'])[2]//option[@value='{count}']")
+        ).click()
         self.wait_for_page_load()
-
-    def get_product_prices(self):
-        """Get list of product prices currently displayed."""
-        logger.info("Getting product prices")
-        return [element.text for element in self.find_all(loc.PRODUCT_PRICE)]
 
     def get_product_names(self):
         """Get list of product names currently displayed."""
         logger.info("Getting product names")
-        sorted_names = [element.text for element in self.find_all(loc.PRODUCT_NAME)]
-        self.sorted_names = sorted_names
-        return sorted_names
+        self.sorted_names = [
+            element.text for element in self.find_all(loc.PRODUCT_NAME)
+        ]
+        return self.sorted_names
+
+    def get_product_prices(self):
+        """Get list of product prices currently displayed."""
+        logger.info("Getting product prices")
+        self.sorted_prices = [
+            element.text for element in self.find_all(loc.PRODUCT_PRICE)
+        ]
+        return self.sorted_prices
 
     def verify_products_sorted_alphabetically(self):
         """Verify products are sorted alphabetically."""
+        logger.info("Verifying products are sorted alphabetically")
+        logger.info("Sorted names: %s", self.sorted_names)
         assert self.sorted_names == sorted(
             self.sorted_names
         ), "Products not sorted alphabetically"
+        logger.info("Products sorted alphabetically")
+
+    def verify_products_sorted_by_price(self):
+        """Verify products are sorted by price."""
+        logger.info("Verifying products are sorted by price")
+        logger.info("Sorted prices: %s", self.sorted_prices)
+        assert self.sorted_prices == sorted(
+            self.sorted_prices
+        ), "Products not sorted by price"
+        logger.info("Products sorted by price")
+
+    def verify_products_sorted_by_position(self):
+        """Verify products are sorted by position."""
+        logger.info("Verifying products are sorted by position")
+        logger.info("Sorted prices: %s", self.sorted_prices)
+        assert self.sorted_prices != sorted(
+            self.sorted_prices
+        ), "Products not sorted by price"
+        logger.info("Sorted names: %s", self.sorted_names)
+        assert self.sorted_names != sorted(
+            self.sorted_names
+        ), "Products not sorted alphabetically"
+        logger.info("Products sorted by position")
+
+    def verify_products_sorted(self, sort_by: str):
+        """Verify products are sorted by the specified criteria."""
+        if sort_by == "name":
+            self.verify_products_sorted_alphabetically()
+        elif sort_by == "price":
+            self.verify_products_sorted_by_price()
+        elif sort_by == "position":
+            self.verify_products_sorted_by_position()
 
     def count_products(self):
         """Count the number of products displayed on the page."""
         logger.info("Counting products")
-        return len(self.find_all(loc.PRODUCT_NAME))
+        time.sleep(1)
+        self.products_per_page = len(self.find_all(loc.PRODUCT_ITEM))
+        logger.info("Products per page: %s", self.products_per_page)
+
+        return self.products_per_page
+
+    def verify_products_per_page(self, count: str):
+        """Verify the number of products per page."""
+        logger.info("Verifying products per page")
+
+        # Get max number of products
+        total_products_count = self.get_total_products_count()
+
+        # Verify the number of products per page
+        if total_products_count < int(count):
+            assert self.products_per_page == total_products_count, (
+                "Products per page is not %s",
+                total_products_count,
+            )
+        else:
+            assert self.products_per_page == int(count), (
+                "Products per page is not %s, it is %s",
+                count,
+                self.products_per_page,
+            )
+        logger.info("Products per page verified")
+
+    def get_total_products_count(self):
+        """
+        Get the total number of products in the category.
+
+        Returns:
+            int: Total number of products
+        """
+        logger.info("Getting total products count")
+        total_count = self.get_text(loc.TOTAL_PRODUCTS_COUNT)
+        logger.info("Total products count: %s", total_count)
+        return int(total_count)

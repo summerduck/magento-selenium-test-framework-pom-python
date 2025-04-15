@@ -1,9 +1,7 @@
 """Module containing tests for the eco-friendly page."""
 
 from pytest import mark
-from data.enums import User
 import logging
-import time
 
 logger = logging.getLogger(__name__)
 
@@ -11,21 +9,12 @@ logger = logging.getLogger(__name__)
 class EcoFriendlyPageTest:
     """Test class for eco-friendly page functionality."""
 
-    @mark.smoke
-    def test_eco_friendly_page_loads_successfully(self, eco_friendly_page):
-        """
-        Test Case: Verify eco-friendly page loads successfully
-        Steps:
-        1. Open eco-friendly page
-        2. Verify page elements are visible
-        """
-        eco_friendly_page.open_page()
-
+    @mark.parametrize("sort_by", ["name", "price", "position"])
     @mark.ui_ux
     def test_product_sorting(
         self,
         eco_friendly_page,
-        sort_by="name",
+        sort_by,
     ):
         """
         Test Case: Verify product sorting functionality
@@ -37,13 +26,15 @@ class EcoFriendlyPageTest:
         """
         eco_friendly_page.open_page_sort_products(sort_by)
         eco_friendly_page.get_product_names()
-        eco_friendly_page.verify_products_sorted_alphabetically()
+        eco_friendly_page.get_product_prices()
+        eco_friendly_page.verify_products_sorted(sort_by)
 
+    @mark.parametrize("products_per_page", ["12", "24", "36"])
     @mark.ui_ux
     def test_products_per_page(
         self,
         eco_friendly_page,
-        products_per_page="12",
+        products_per_page,
     ):
         """
         Test Case: Verify products per page functionality
@@ -53,15 +44,13 @@ class EcoFriendlyPageTest:
         3. Verify product count matches selected value
         """
         eco_friendly_page.open_page()
-        # eco_friendly_page.set_products_per_page(products_per_page)
+        eco_friendly_page.set_products_per_page(products_per_page)
+        eco_friendly_page.count_products()
+        eco_friendly_page.verify_products_per_page(products_per_page)
 
-        product_count = eco_friendly_page.count_products()
-        assert product_count == int(
-            products_per_page
-        ), f"Product count is not {products_per_page}"
 
     # @mark.ui_ux
-    # def test_price_sorting(self, eco_friendly_page):
+    # def test_price_sorting(self, eco_friendly_page,):
     #     """
     #     Test Case: Verify price sorting functionality
     #     Steps:
