@@ -35,7 +35,9 @@ class CustomerAccountPage(BasePage):
         """
         Open the customer account creation page.
         """
-        logger.info("Opening page: %s", self.customer_account_page_url)
+        logger.info(
+            "Navigating to Customer Account page at: %s", self.customer_account_page_url
+        )
         self.goto(self.customer_account_page_url)
 
     def is_page_opened(
@@ -44,11 +46,16 @@ class CustomerAccountPage(BasePage):
         """
         Check if the customer account creation page is opened
         """
-        logger.info("Checking if customer account creation page is opened")
+        logger.info("Verifying Customer Account page is properly loaded")
 
         # Check if the current URL matches the expected URL
-        assert self.driver.current_url == self.customer_account_page_url
-        logger.info("Current URL matches expected URL")
+        assert self.driver.current_url == self.customer_account_page_url, (
+            f"Expected URL: {self.customer_account_page_url}, "
+            f"but got: {self.driver.current_url}"
+        )
+        logger.info(
+            "✓ Confirmed: Current URL matches expected Customer Account page URL"
+        )
 
         # Check if the customer account create page class is visible
         page_class = self.driver.find_element(
@@ -56,8 +63,8 @@ class CustomerAccountPage(BasePage):
         )
         assert (
             page_class.is_displayed()
-        ), "Customer account create page class is not visible"
-        logger.info("Customer account create page class is visible")
+        ), "Customer Account page layout elements are not visible"
+        logger.info("✓ Confirmed: Customer Account page layout is properly displayed")
 
     def verify_account_creation(
         self,
@@ -65,8 +72,8 @@ class CustomerAccountPage(BasePage):
         """
         Verify account creation.
         """
-        logger.info("Verifying account creation")
+        logger.info("Verifying successful customer account creation")
         self.wait_for_page_load()
         self.wait_for_element(self.SUCCESS_MESSAGE)
         self.expect_to_be_visible(self.SUCCESS_MESSAGE)
-        logger.info("Account creation success message verified")
+        logger.info("✓ Confirmed: Account creation success message is displayed")
