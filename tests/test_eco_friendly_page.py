@@ -17,12 +17,7 @@ class EcoFriendlyPageTest:
         sort_by,
     ):
         """
-        Test Case: Verify product sorting functionality
-        Steps:
-        1. Open eco-friendly page
-        2. Get initial product names
-        3. Sort by name
-        4. Verify products are sorted alphabetically
+        Verify product sorting functionality
         """
         eco_friendly_page.open_page_sort_products(sort_by)
         eco_friendly_page.get_product_names()
@@ -37,27 +32,17 @@ class EcoFriendlyPageTest:
         products_per_page,
     ):
         """
-        Test Case: Verify products per page functionality
-        Steps:
-        1. Open eco-friendly page
-        2. Set products per page to 24
-        3. Verify product count matches selected value
+        Verify products per page functionality
         """
         eco_friendly_page.open_page()
         eco_friendly_page.set_products_per_page(products_per_page)
         eco_friendly_page.count_products()
         eco_friendly_page.verify_products_per_page(products_per_page)
 
-
     # @mark.ui_ux
     # def test_price_sorting(self, eco_friendly_page,):
     #     """
-    #     Test Case: Verify price sorting functionality
-    #     Steps:
-    #     1. Open eco-friendly page
-    #     2. Get initial product prices
-    #     3. Sort by price
-    #     4. Verify products are sorted by price
+    #     Verify price sorting functionality
     #     """
     #     eco_friendly_page.open_page()
     #     initial_prices = eco_friendly_page.get_product_prices()
