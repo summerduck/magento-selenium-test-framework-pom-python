@@ -38,9 +38,9 @@ class BasePage:
 
         try:
             WebDriverWait(self.driver, 10).until(is_page_loaded)
-            print("Page DOM is fully loaded!")
+            logger.info("Page DOM is fully loaded!")
         except TimeoutError:
-            print("Page DOM did not fully load")
+            logger.error("Page DOM did not fully load")
 
         def are_ajax_requests_complete(driver):
             return driver.execute_script("return jQuery.active == 0")
@@ -48,9 +48,9 @@ class BasePage:
         # Method 4: Check if all AJAX requests are complete
         try:
             WebDriverWait(self.driver, 10).until(are_ajax_requests_complete)
-            print("All AJAX requests completed!")
+            logger.info("All AJAX requests completed!")
         except TimeoutError:
-            print("AJAX requests did not complete")
+            logger.error("AJAX requests did not complete")
 
         # Method 5: Check if all images are loaded
         def are_images_loaded(driver):
@@ -58,9 +58,9 @@ class BasePage:
 
         try:
             WebDriverWait(self.driver, 10).until(are_images_loaded)
-            print("All images loaded!")
+            logger.info("All images loaded!")
         except TimeoutError:
-            print("Images did not load")
+            logger.error("Images did not load")
 
         # Method 6: Check if all elements are present
         def are_elements_present(driver):
@@ -68,9 +68,9 @@ class BasePage:
 
         try:
             WebDriverWait(self.driver, 10).until(are_elements_present)
-            print("All elements present!")
+            logger.info("All elements present!")
         except TimeoutError:
-            print("Elements did not load")
+            logger.error("Elements did not load")
 
     def reload(self):
         """Reload the current page"""
