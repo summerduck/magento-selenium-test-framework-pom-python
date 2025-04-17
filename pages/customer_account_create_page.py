@@ -33,22 +33,29 @@ class CustomerAccountCreatePage(BasePage):
         """
         Open the customer account creation page.
         """
-        # Open the page
-        logger.info("Opening page: %s", self.customer_account_create_page_url)
+        logger.info(
+            "Navigating to Account Creation page at: %s",
+            self.customer_account_create_page_url,
+        )
         self.goto(self.customer_account_create_page_url)
 
-        # Check if the current URL matches the expected URL
-        assert self.driver.current_url == self.customer_account_create_page_url
-        logger.info("Current URL matches expected URL")
+        # Verify URL
+        assert self.driver.current_url == self.customer_account_create_page_url, (
+            f"Expected URL: {self.customer_account_create_page_url}, "
+            f"but got: {self.driver.current_url}"
+        )
+        logger.info(
+            "✓ Confirmed: Current URL matches expected Account Creation page URL"
+        )
 
-        # Check if the customer account create page class is visible
+        # Verify page layout
         page_class = self.driver.find_element(
             "css selector", ".customer-account-create.page-layout-1column"
         )
         assert (
             page_class.is_displayed()
-        ), "Customer account create page class is not visible"
-        logger.info("Customer account create page class is visible")
+        ), "Account Creation page layout elements are not visible"
+        logger.info("✓ Confirmed: Account Creation page layout is properly displayed")
 
     def submit_form(
         self,
@@ -56,9 +63,9 @@ class CustomerAccountCreatePage(BasePage):
         """
         Submit the registration form.
         """
-        logger.info("Submitting registration form")
+        logger.info("Submitting customer account registration form")
         self.find(loc.SUBMIT_BUTTON).click()
-        logger.info("Registration form submitted")
+        logger.info("✓ Registration form submitted successfully")
 
     def get_error_messages(
         self,
@@ -66,7 +73,7 @@ class CustomerAccountCreatePage(BasePage):
         """
         Get all error messages from the form.
         """
-        logger.info("Getting error messages from all form fields")
+        logger.info("Collecting error messages from all registration form fields")
         self.error_messages = {
             "firstname": self.get_text(loc.FIRSTNAME_ERROR),
             "lastname": self.get_text(loc.LASTNAME_ERROR),
@@ -74,7 +81,8 @@ class CustomerAccountCreatePage(BasePage):
             "password": self.get_text(loc.PASSWORD_ERROR),
             "password_confirm": self.get_text(loc.PASSWORD_CONFIRM_ERROR),
         }
-        logger.info("Error messages collected: %s", self.error_messages)
+        logger.debug("Collected error messages: %s", self.error_messages)
+        logger.info("✓ Form validation messages retrieved successfully")
 
     def verify_required_field_error_message(
         self,
@@ -83,22 +91,15 @@ class CustomerAccountCreatePage(BasePage):
     ):
         """
         Verify required field error message for a specific form field.
-
-        Args:
-            field (str): Name of the form field to verify required error message for.
-                Field name must be one of the following:
-                - "firstname"
-                - "lastname"
-                - "email"
-                - "password"
-                - "password_confirm"
-            error_message (str): Expected error message for the field
         """
-        logger.info("Verifying required field error message for %s", field)
-        assert (
-            error_message in self.error_messages[field]
-        ), f"{field.title()} required field error message not displayed"
-        logger.info("Required field error message verified for %s", field)
+        logger.info("Verifying required field error message for field: '%s'", field)
+        assert error_message in self.error_messages[field], (
+            f"Expected error message '{error_message}' not found for {field} field. "
+            f"Actual message: {self.error_messages[field]}"
+        )
+        logger.info(
+            "✓ Confirmed: Required field error message verified for '%s'", field
+        )
 
     def verify_all_required_field_error_messages(
         self,
@@ -113,9 +114,9 @@ class CustomerAccountCreatePage(BasePage):
         for field in fields:
             self.verify_required_field_error_message(field)
         logger.info(
-            "All required field error messages verified. Error messages: %s",
-            self.error_messages,
+            "✓ Confirmed: All required field error messages verified successfully"
         )
+        logger.debug("Error messages state: %s", self.error_messages)
 
     def fill_firstname(
         self,
@@ -125,6 +126,7 @@ class CustomerAccountCreatePage(BasePage):
         Fill the firstname field with the provided value.
         """
         if firstname:
+            logger.info("Filling first name field with: '%s'", firstname)
             self.send_keys(loc.FIRSTNAME_INPUT, firstname)
 
     def fill_lastname(
@@ -135,6 +137,7 @@ class CustomerAccountCreatePage(BasePage):
         Fill the lastname field with the provided value.
         """
         if lastname:
+            logger.info("Filling last name field with: '%s'", lastname)
             self.send_keys(loc.LASTNAME_INPUT, lastname)
 
     def fill_email(
@@ -145,6 +148,7 @@ class CustomerAccountCreatePage(BasePage):
         Fill the email field with the provided value.
         """
         if email:
+            logger.info("Filling email field with: '%s'", email)
             self.send_keys(loc.EMAIL_INPUT, email)
 
     def fill_password(
@@ -155,6 +159,9 @@ class CustomerAccountCreatePage(BasePage):
         Fill the password field with the provided value.
         """
         if password:
+            logger.info(
+                "Filling password field"
+            )  # Not logging actual password for security
             self.send_keys(loc.PASSWORD_INPUT, password)
             self.send_keys(loc.PASSWORD_INPUT, Keys.ENTER)
 
@@ -166,6 +173,9 @@ class CustomerAccountCreatePage(BasePage):
         Fill the password confirmation field with the provided value.
         """
         if password_confirmation:
+            logger.info(
+                "Filling password confirmation field"
+            )  # Not logging actual password for security
             self.send_keys(loc.PASSWORD_CONFIRM_INPUT, password_confirmation)
 
     def fill_form(
@@ -179,32 +189,16 @@ class CustomerAccountCreatePage(BasePage):
     ):
         """
         Fill the registration form with the provided values.
-
-        If user is provided, use the user data
-        If firstname, lastname, email, password are provided, use the provided values
-
-        Args:
-            user (UserData): User data to fill the form with
-            firstname (str): First name to fill the form with, optional
-            lastname (str): Last name to fill the form with, optional
-            email (str): Email to fill the form with, optional
-            password (str): Password to fill the form with, optional
         """
+        logger.info("Starting to fill customer registration form")
+
         # If user is provided, use the user data
         if user:
             firstname = user.first_name
             lastname = user.last_name
             email = user.email
             password = user.password
-
-        # Log the values being used to fill the form
-        logger.info(
-            "Filling registration form with values: %s, %s, %s, %s",
-            firstname,
-            lastname,
-            email,
-            password,
-        )
+            logger.info("Using provided UserData object for form filling")
 
         # If password_confirmation is not provided, use the password
         password_confirmation = (
@@ -218,7 +212,7 @@ class CustomerAccountCreatePage(BasePage):
         self.fill_password(password)
         self.fill_password_confirmation(password_confirmation)
 
-        logger.info("Registration form filled")
+        logger.info("✓ Registration form filled successfully")
 
     def __get_password_class(self, label: str) -> str:
         """
@@ -234,6 +228,7 @@ class CustomerAccountCreatePage(BasePage):
             case "No Password":
                 return "password-none"
             case _:
+                logger.error("Invalid password strength label provided: %s", label)
                 raise ValueError(f"Invalid password strength label: {label}")
 
     def verify_password_strength_meter(
@@ -245,26 +240,33 @@ class CustomerAccountCreatePage(BasePage):
         """
         Verify the password strength meter.
         """
-        logger.info("Verifying password strength meter")
+        logger.info(
+            "Verifying password strength meter with expected label: '%s'", label
+        )
         self.wait_for_element(loc.PASSWORD_STRENGTH_METER)
 
         # Verify the password strength meter label
-        assert (
-            self.get_text(loc.PASSWORD_STRENGTH_METER_LABEL) == label
-        ), f"Password strength meter label is not {label}. Actual label: {self.get_text(loc.PASSWORD_STRENGTH_METER_LABEL)}"
-        logger.info("Password strength meter verified")
+        actual_label = self.get_text(loc.PASSWORD_STRENGTH_METER_LABEL)
+        assert actual_label == label, (
+            f"Password strength meter label mismatch. "
+            f"Expected: '{label}', but got: '{actual_label}'"
+        )
+        logger.info("✓ Confirmed: Password strength meter label matches expected value")
 
         # Verify the password strength meter class
         password_class = self.__get_password_class(label)
-        assert (
-            self.find(loc.PASSWORD_STRENGTH_METER).get_attribute("class")
-            == password_class
-        ), f"Password strength meter class is not {password_class}. Actual class: {self.find(loc.PASSWORD_STRENGTH_METER).get_attribute('class')}"
-        logger.info("Password strength meter class verified")
+        actual_class = self.find(loc.PASSWORD_STRENGTH_METER).get_attribute("class")
+        assert actual_class == password_class, (
+            f"Password strength meter class mismatch. "
+            f"Expected: '{password_class}', but got: '{actual_class}'"
+        )
+        logger.info("✓ Confirmed: Password strength meter class matches expected value")
 
-        # Verify the password error message
+        # Verify the password error message if applicable
         if message_type == "error" and error_message:
-            assert (
-                self.get_text(loc.PASSWORD_ERROR) == error_message
-            ), f"Password error message is not {error_message}. Actual message: {self.get_text(loc.PASSWORD_ERROR)}"
-            logger.info("Password error message verified")
+            actual_error = self.get_text(loc.PASSWORD_ERROR)
+            assert actual_error == error_message, (
+                f"Password error message mismatch. "
+                f"Expected: '{error_message}', but got: '{actual_error}'"
+            )
+            logger.info("✓ Confirmed: Password error message matches expected value")

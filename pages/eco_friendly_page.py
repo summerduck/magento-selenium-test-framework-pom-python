@@ -1,15 +1,244 @@
 """Module containing EcoFriendlyPage class for eco-friendly page interactions."""
 
+import logging
+import time
 from pages.base_page import BasePage
+from pages.locators import EcoFriendlyPageLocators as loc
+from selenium.webdriver.common.by import By
+
+# Initialize logger
+logger = logging.getLogger(__name__)
 
 
 class EcoFriendlyPage(BasePage):
     """Class for interacting with the eco-friendly page."""
 
-    def __init__(self, driver):
-        """Initialize the EcoFriendlyPage instance."""
-        super().__init__(driver)
+    page_url = "/collections/eco-friendly.html"
 
-    def open_page(self):
-        """Open the eco-friendly page."""
-        self.driver.get("https://magento.softwaretestingboard.com/eco-friendly.html")
+    def __init__(
+        self,
+        driver,
+    ):
+        """
+        Initialize the EcoFriendlyPage instance.
+        """
+        super().__init__(driver)
+        self.eco_friendly_page_url = f"{self.base_url}{self.page_url}"
+        self.sorted_names = []
+        self.sorted_prices = []
+        self.products_per_page = None
+
+    def open_page(
+        self,
+    ):
+        """
+        Open the eco-friendly page.
+        """
+        logger.info(
+            "Navigating to Eco-Friendly Products page at: %s",
+            self.eco_friendly_page_url,
+        )
+        self.goto(self.eco_friendly_page_url)
+        self._verify_page_loaded()
+
+    def refresh_page(self):
+        """Refresh the page."""
+        logger.info("Refreshing Eco-Friendly Products page")
+        self.driver.refresh()
+        self._verify_page_loaded()
+
+    def _verify_page_loaded(self):
+        """Verify the eco-friendly page is loaded correctly."""
+        logger.info(
+            "Verifying Eco-Friendly page elements and content are properly loaded"
+        )
+        self.wait_for_page_load()
+        self.expect_to_be_visible(loc.PAGE_TITLE)
+        time.sleep(0.5)
+
+    def open_page_sort_products(self, sort_by: str):
+        """
+        Open page and sort products by the specified criteria.
+
+        Args:
+            sort_by (str): Sorting criteria ('position', 'name', or 'price')
+        """
+        logger.info(
+            "Opening Eco-Friendly page and applying sorting filter: '%s'", sort_by
+        )
+
+        sort_urls = {
+            "position": self.eco_friendly_page_url,
+            "name": f"{self.eco_friendly_page_url}?product_list_order=name",
+            "price": f"{self.eco_friendly_page_url}?product_list_order=price",
+        }
+
+        if sort_by not in sort_urls:
+            logger.error(
+                "Invalid sorting option '%s'. Valid options are: %s",
+                sort_by,
+                list(sort_urls.keys()),
+            )
+            raise ValueError(
+                f"Invalid sort_by value: {sort_by}. Must be one of: {list(sort_urls.keys())}"
+            )
+
+        self.goto(sort_urls[sort_by])
+        self._verify_page_loaded()
+
+    def set_products_per_page(self, count: str):
+        """
+        Set number of products to display per page.
+
+        Args:
+            count (str): Number of products per page (e.g., "12", "24", "36")
+        """
+        logger.info("Changing products display limit to %s items per page", count)
+        self.wait_for_element(loc.SHOW_PER_PAGE_DROPDOWN).click()
+        self.wait_for_element(
+            (By.XPATH, f"(//select[@id='limiter'])[2]//option[@value='{count}']")
+        ).click()
+        self.wait_for_page_load()
+
+    def get_product_names(self):
+        """Get list of product names currently displayed."""
+        logger.info("Retrieving names of all displayed products on the current page")
+        self.sorted_names = [
+            element.text for element in self.find_all(loc.PRODUCT_NAME)
+        ]
+        logger.info("Found %d products: %s", len(self.sorted_names), self.sorted_names)
+        return self.sorted_names
+
+    def get_product_prices(self):
+        """Get list of product prices currently displayed."""
+        logger.info("Retrieving prices of all displayed products on the current page")
+        self.sorted_prices = [
+            element.text for element in self.find_all(loc.PRODUCT_PRICE)
+        ]
+        logger.info("Found %d prices: %s", len(self.sorted_prices), self.sorted_prices)
+        return self.sorted_prices
+
+    def verify_products_sorted_alphabetically(self):
+        """Verify products are sorted alphabetically."""
+        logger.info("Verifying products are correctly sorted in alphabetical order")
+        logger.info("Current product order: %s", self.sorted_names)
+        assert self.sorted_names == sorted(
+            self.sorted_names
+        ), "Products are not in alphabetical order"
+        logger.info("✓ Confirmed: Products are correctly sorted alphabetically")
+
+    def verify_products_sorted_by_price(self):
+        """Verify products are sorted by price."""
+        logger.info("Verifying products are correctly sorted by price (ascending)")
+        logger.info("Current price order: %s", self.sorted_prices)
+        assert self.sorted_prices == sorted(
+            self.sorted_prices
+        ), "Products are not sorted by price correctly"
+        logger.info("✓ Confirmed: Products are correctly sorted by price")
+
+    def verify_products_sorted_by_position(self):
+        """Verify products are sorted by position."""
+        logger.info("Verifying products are in default position order")
+        assert self.sorted_prices != sorted(
+            self.sorted_prices
+        ), "Products appear to be sorted by price"
+        assert self.sorted_names != sorted(
+            self.sorted_names
+        ), "Products appear to be sorted alphabetically"
+        logger.info("✓ Confirmed: Products are in default position order")
+
+    def verify_products_sorted(self, sort_by: str):
+        """Verify products are sorted by the specified criteria."""
+        if sort_by == "name":
+            self.verify_products_sorted_alphabetically()
+        elif sort_by == "price":
+            self.verify_products_sorted_by_price()
+        elif sort_by == "position":
+            self.verify_products_sorted_by_position()
+
+    def count_products(self):
+        """Count the number of products displayed on the page."""
+        logger.info("Counting total number of products displayed on current page")
+        time.sleep(1)
+        self.products_per_page = len(self.find_all(loc.PRODUCT_ITEM))
+        logger.info("Found %d products on current page", self.products_per_page)
+
+        return self.products_per_page
+
+    def verify_products_per_page(self, count: str):
+        """Verify the number of products per page."""
+        logger.info(
+            "Verifying correct number of products (%s) are displayed per page", count
+        )
+
+        # Get max number of products
+        total_products_count = self.get_total_products_count()
+
+        # Verify the number of products per page
+        if total_products_count < int(count):
+            logger.info(
+                "Total products (%d) is less than requested per page (%s)",
+                total_products_count,
+                count,
+            )
+            assert (
+                self.products_per_page == total_products_count
+            ), f"Expected {total_products_count} products, but found {self.products_per_page}"
+        else:
+            assert self.products_per_page == int(
+                count
+            ), f"Expected {count} products per page, but found {self.products_per_page}"
+        logger.info("✓ Confirmed: Correct number of products displayed per page")
+
+    def get_total_products_count(self):
+        """
+        Get the total number of products in the category.
+
+        Returns:
+            int: Total number of products
+        """
+        logger.info("Retrieving total number of products in Eco-Friendly category")
+        total_count = self.get_text(loc.TOTAL_PRODUCTS_COUNT)
+        logger.info("Total products in category: %s", total_count)
+        return int(total_count)
+
+    def verify_product_grid_mode(self):
+        """Verify product grid mode."""
+        logger.info("Verifying products are displayed in grid view mode")
+        self.expect_to_be_visible(loc.ACTIVE_GRID_MODE)
+        self.expect_to_be_visible(loc.PRODUCT_GRID)
+        logger.info("✓ Confirmed: Products are displayed in grid view")
+
+    def verify_product_list_mode(self):
+        """Verify product list mode."""
+        logger.info("Verifying products are displayed in list view mode")
+        self.expect_to_be_visible(loc.ACTIVE_LIST_MODE)
+        self.expect_to_be_visible(loc.PRODUCT_LIST)
+        assert (
+            self.driver.current_url
+            == self.eco_friendly_page_url + "?product_list_mode=list"
+        )
+        logger.info("✓ Confirmed: Products are displayed in list view")
+
+    def switch_to_product_grid_mode(self):
+        """Switch to product grid mode."""
+        logger.info("Switching product display to grid view mode")
+        self.click(loc.GRID_MODE)
+        self._verify_page_loaded()
+
+    def switch_to_product_list_mode(self):
+        """Switch to product list mode."""
+        logger.info("Switching product display to list view mode")
+        self.click(loc.LIST_MODE)
+        self._verify_page_loaded()
+
+    def verify_product_data_consistency(self):
+        """Verify that product data remains consistent between mode switches."""
+        logger.info("Verifying product data consistency across view mode changes")
+        product_names_list_mode = self.get_product_names()
+        assert all(
+            name in self.sorted_names for name in product_names_list_mode
+        ), "Product data mismatch detected between view modes"
+        logger.info(
+            "✓ Confirmed: Product data remains consistent across view mode changes"
+        )

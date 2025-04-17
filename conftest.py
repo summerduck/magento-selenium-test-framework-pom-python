@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 def driver():
     """Fixture to initialize the Chrome driver with necessary options."""
     options = Options()
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
     # options.add_argument("--auto-open-devtools-for-tabs")
     chrome_driver = webdriver.Chrome(options=options)
     yield chrome_driver
