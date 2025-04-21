@@ -14,13 +14,16 @@ logger = logging.getLogger(__name__)
 class SalePageException(Exception):
     """Base exception for SalePage-specific errors."""
 
-    pass
+    def __init__(self, message="An error occurred on the Sale Page"):
+        self.message = message
+        super().__init__(self.message)
 
 
 class PromotionalContentError(SalePageException):
     """Raised when promotional content verification fails."""
 
-    pass
+    def __init__(self, message="Failed to verify promotional content"):
+        super().__init__(message)
 
 
 @dataclass
