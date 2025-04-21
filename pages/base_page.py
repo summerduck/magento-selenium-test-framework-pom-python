@@ -1,6 +1,6 @@
 """Module containing BasePage class for base page interactions."""
 
-from typing import Optional, List, Tuple, Any
+from typing import Optional, List, Tuple
 import logging
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -41,7 +41,7 @@ class BasePage:
     # Navigation methods
     def goto(self, url: str) -> None:
         """Navigate to the specified URL."""
-        logger.debug(f"Navigating to URL: {url}")
+        logger.debug("Navigating to URL: %s", url)
         self.driver.get(url)
         self.wait_for_page_load()
 
@@ -64,7 +64,7 @@ class BasePage:
 
             logger.info("Page loaded successfully")
         except TimeoutException as e:
-            logger.error(f"Page load timeout: {str(e)}")
+            logger.error("Page load timeout: %s", str(e))
             raise
 
     def _is_jquery_present(self) -> bool:
@@ -106,7 +106,7 @@ class BasePage:
         Args:
             locator: Tuple of By strategy and locator string
         """
-        logger.debug(f"Clicking element with locator: {locator}")
+        logger.debug("Clicking element with locator: %s", locator)
         self.wait_for_element(locator).click()
 
     def find(self, locator: Tuple[By, str]) -> WebElement:
@@ -147,7 +147,7 @@ class BasePage:
         Raises:
             TimeoutException: If element is not found within timeout
         """
-        logger.debug(f"Waiting for element with locator: {locator}")
+        logger.debug("Waiting for element with locator: %s", locator)
         return self.wait.until(EC.presence_of_element_located(locator))
 
     def wait_for_timeout(self, timeout: float) -> None:
@@ -156,7 +156,7 @@ class BasePage:
         Args:
             timeout: Time to wait in seconds
         """
-        logger.debug(f"Waiting for {timeout} seconds")
+        logger.debug("Waiting for %s seconds", timeout)
         self.driver.implicitly_wait(timeout)
 
     # Element interaction methods
@@ -168,10 +168,12 @@ class BasePage:
             text: Text to send to element
         """
         if text is None:
-            logger.debug(f"Text is None, skipping send_keys for locator: {locator}")
+            logger.debug("Text is None, skipping send_keys for locator: %s", locator)
             return
 
-        logger.debug(f"Sending keys to element with locator: {locator}, text: {text}")
+        logger.debug(
+            "Sending keys to element with locator: %s, text: %s", locator, text
+        )
         self.wait_for_element(locator).send_keys(text)
 
     def get_text(self, locator: Tuple[By, str]) -> Optional[str]:
@@ -185,13 +187,13 @@ class BasePage:
             None: If element not found or has no text
         """
         try:
-            logger.debug(f"Getting text from element with locator: {locator}")
+            logger.debug("Getting text from element with locator: %s", locator)
             element = self.wait_for_element(locator)
             text = element.text if element else ""
-            logger.debug(f"Got text: '{text}'")
+            logger.debug("Got text: '%s'", text)
             return text
         except WebDriverException as e:
-            logger.warning(f"Failed to get text from element {locator}: {str(e)}")
+            logger.warning("Failed to get text from element %s: %s", locator, str(e))
             return None
 
     # Assertion methods
@@ -204,11 +206,11 @@ class BasePage:
         Raises:
             AssertionError: If element is not visible
         """
-        logger.debug(f"Checking if element with locator: {locator} is visible")
+        logger.debug("Checking if element with locator: %s is visible", locator)
         element = self.wait.until(EC.visibility_of_element_located(locator))
-        assert (
-            element is not None
-        ), f"Element with locator {locator} not found or not visible"
+        assert element is not None, (
+            "Element with locator %s not found or not visible", locator
+        )
 
     def expect_to_have_text(self, locator: Tuple[By, str], text: str) -> None:
         """Assert element has expected text.
@@ -220,7 +222,7 @@ class BasePage:
         Raises:
             AssertionError: If element does not have expected text
         """
-        logger.debug(f"Checking if element with locator: {locator} has text: {text}")
+        logger.debug("Checking if element with locator: %s has text: %s", locator, text)
         assert self.wait.until(EC.text_to_be_present_in_element(locator, text))
 
     def expect_to_be_enabled(self, locator: Tuple[By, str]) -> None:
@@ -232,7 +234,7 @@ class BasePage:
         Raises:
             AssertionError: If element is not enabled
         """
-        logger.debug(f"Checking if element with locator: {locator} is enabled")
+        logger.debug("Checking if element with locator: %s is enabled", locator)
         assert self.wait.until(EC.element_to_be_clickable(locator))
 
     def expect_to_be_disabled(self, locator: Tuple[By, str]) -> None:
@@ -244,5 +246,5 @@ class BasePage:
         Raises:
             AssertionError: If element is enabled
         """
-        logger.debug(f"Checking if element with locator: {locator} is disabled")
+        logger.debug("Checking if element with locator: %s is disabled", locator)
         assert not self.wait.until(EC.element_to_be_clickable(locator))
