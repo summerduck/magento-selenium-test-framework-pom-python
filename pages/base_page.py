@@ -75,6 +75,9 @@ class BasePage:
         """Reload the current page."""
         self.driver.refresh()
         self.wait_for_page_load()
+        # Return self to enable method chaining
+        # This allows calling multiple methods in sequence like:
+        # page.reload().click(locator).back()
         return self
 
     def back(self) -> "BasePage":
@@ -209,7 +212,8 @@ class BasePage:
         logger.debug("Checking if element with locator: %s is visible", locator)
         element = self.wait.until(EC.visibility_of_element_located(locator))
         assert element is not None, (
-            "Element with locator %s not found or not visible", locator
+            "Element with locator %s not found or not visible",
+            locator,
         )
 
     def expect_to_have_text(self, locator: Tuple[By, str], text: str) -> None:
