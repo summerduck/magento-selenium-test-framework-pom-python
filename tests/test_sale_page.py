@@ -31,3 +31,16 @@ class SalePageTest:
         sale_page.open_page()
         sale_page.verify_promotional_banners()
         sale_page.verify_promotional_content()
+
+    @mark.ui_ux
+    def test_deal_sections(
+        self,
+        sale_page,
+    ):
+        """
+        Test that all deal sections are present and
+        contain the expected category links.
+        """
+        sale_page.open_page()
+        sale_page.verify_deal_sections()
+        sale_page.verify_category_links()

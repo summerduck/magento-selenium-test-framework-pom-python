@@ -81,9 +81,19 @@ class SalePageLocators(object):
     PAGE_TITLE = (By.ID, "page-title-heading")
 
     # Deal section locators
-    WOMENS_DEALS_SECTION = (By.XPATH, "//span[contains(text(),'Women's Deals')]")
-    MENS_DEALS_SECTION = (By.XPATH, "//span[contains(text(),'Men's Deals')]")
-    GEAR_DEALS_SECTION = (By.XPATH, "//span[contains(text(),'Gear Deals')]")
+    CATEGORIES_MENU = (By.XPATH, "//div[@class='categories-menu']")
+    WOMENS_DEALS_MENU_CATEGORY = (
+        By.XPATH,
+        '//strong[@class="title"]//span[text()="Women\'s Deals"]',
+    )
+    MENS_DEALS_MENU_CATEGORY = (
+        By.XPATH,
+        '//strong[@class="title"]//span[text()="Mens\'s Deals"]',
+    )
+    GEAR_DEALS_MENU_CATEGORY = (
+        By.XPATH,
+        "//strong[@class='title']//span[text()='Gear Deals']",
+    )
 
     # Promotional content locators
     PROMO_BANNERS = (By.CLASS_NAME, "blocks-promo")
@@ -92,6 +102,15 @@ class SalePageLocators(object):
     TEES_PROMO = (By.XPATH, "//a[@class='block-promo sale-womens-t-shirts']")
 
     # Product category links
-    WOMENS_CATEGORIES = (By.CSS_SELECTOR, ".women-deals a")
-    MENS_CATEGORIES = (By.CSS_SELECTOR, ".mens-deals a")
-    GEAR_CATEGORIES = (By.CSS_SELECTOR, ".gear-deals a")
+    WOMENS_CATEGORIES = (
+        By.XPATH,
+        '(//strong[@class="title"][span[text()="Women\'s Deals"]]/following-sibling::ul[@class="items"])[1]//li',
+    )
+    MENS_CATEGORIES = (
+        By.XPATH,
+        '(//strong[@class="title"][span[text()="Mens\'s Deals"]]/following-sibling::ul[@class="items"])[1]//li',
+    )
+    GEAR_CATEGORIES = (
+        By.XPATH,
+        '//strong[@class="title"][span[text()="Gear Deals"]]/following-sibling::ul[@class="items"]//li',
+    )

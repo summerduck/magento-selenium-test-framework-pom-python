@@ -69,3 +69,40 @@ class SalePage(BasePage):
                     "Failed to verify promotional text '%s': %s", expected_text, str(e)
                 )
                 raise
+
+    def verify_deal_sections(self):
+        """Verify all deal sections are present on the page."""
+        logger.info("Verifying deal sections are present")
+
+        # Check each deal section is visible
+        self.expect_to_be_visible(loc.CATEGORIES_MENU)
+        self.expect_to_be_visible(loc.WOMENS_DEALS_MENU_CATEGORY)
+        self.expect_to_be_visible(loc.MENS_DEALS_MENU_CATEGORY)
+        self.expect_to_be_visible(loc.GEAR_DEALS_MENU_CATEGORY)
+
+        logger.info("All deal sections titles are present on the page")
+
+    def verify_category_links(self):
+        """Verify category links within each deal section."""
+        logger.info("Verifying category links in each deal section")
+
+        # Check women's category links
+        womens_links = self.find_all(loc.WOMENS_CATEGORIES)
+        assert len(womens_links) > 0, "No women's category links found"
+        logger.info("Found %d women's category links", len(womens_links))
+
+        # Check men's category links
+        mens_links = self.find_all(loc.MENS_CATEGORIES)
+        assert len(mens_links) > 0, "No men's category links found"
+        logger.info("Found %d men's category links", len(mens_links))
+
+        # Check gear category links
+        gear_links = self.find_all(loc.GEAR_CATEGORIES)
+        assert len(gear_links) > 0, "No gear category links found"
+        logger.info("Found %d gear category links", len(gear_links))
+
+        # Verify at least one link is clickable
+        sample_link = womens_links[0]
+        link_text = sample_link.text
+        logger.info("Verifying link '%s' is clickable", link_text)
+        assert sample_link.is_enabled(), f"Link '{link_text}' is not clickable"
