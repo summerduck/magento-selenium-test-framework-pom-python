@@ -1,7 +1,10 @@
 """Module containing tests for the customer account creation page."""
 
+import logging
 from pytest import mark
 from data.enums import User
+
+logger = logging.getLogger(__name__)
 
 
 class CustomerAccountCreatePageTest:
@@ -53,10 +56,10 @@ class CustomerAccountCreatePageTest:
     def test_password_strength(
         self,
         customer_account_create_page,
-        password,
-        label,
-        message_type,
-        error_message,
+        password: str,
+        label: str,
+        message_type: str,
+        error_message: str,
     ):
         """
         Password Strength Tests:

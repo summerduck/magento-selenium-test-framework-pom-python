@@ -1,7 +1,7 @@
 """Module containing tests for the eco-friendly page."""
 
-from pytest import mark
 import logging
+from pytest import mark
 
 logger = logging.getLogger(__name__)
 
@@ -14,10 +14,15 @@ class EcoFriendlyPageTest:
     def test_product_sorting(
         self,
         eco_friendly_page,
-        sort_by,
+        sort_by: str,
     ):
         """
-        Verify product sorting functionality
+        Product Sorting Tests:
+        - Verify products can be sorted by different criteria
+        - Validate correct order of products after sorting
+
+        Args:
+            sort_by (str): The sorting criteria to test (name, price, or position)
         """
         eco_friendly_page.open_page_sort_products(sort_by)
         eco_friendly_page.get_product_names()
@@ -29,10 +34,15 @@ class EcoFriendlyPageTest:
     def test_show_products_per_page(
         self,
         eco_friendly_page,
-        products_per_page,
+        products_per_page: str,
     ):
         """
-        Verify show products per page functionality
+        Products Per Page Tests:
+        - Verify number of products displayed matches selected option
+        - Check product grid layout adjusts appropriately
+
+        Args:
+            products_per_page (str): Number of products to display per page (12, 24, or 36)
         """
         eco_friendly_page.open_page()
         eco_friendly_page.set_products_per_page(products_per_page)
@@ -44,7 +54,12 @@ class EcoFriendlyPageTest:
         eco_friendly_page,
     ):
         """
-        Verify mode switch functionality
+        Product View Mode Tests:
+        - Verify default product grid view mode
+        - Validate mode persistence after page refresh
+        - Check product list view mode functionality
+        - Ensure product data consistency between view modes
+        - Verify smooth transitions between grid and list modes
         """
         # Verify default mode is product grid
         eco_friendly_page.open_page()
