@@ -5,14 +5,12 @@ Locators module for the Magento test framework.
 from .locators import (
     CustomerAccountCreatePageLocators,
     EcoFriendlyPageLocators,
-    CreateAccountPageLocators,
-    CreateAccountSuccessPageLocators,
+    SalePageLocators,
 )
 
 
 __all__ = [
     "CustomerAccountCreatePageLocators",
     "EcoFriendlyPageLocators",
-    "CreateAccountPageLocators",
-    "CreateAccountSuccessPageLocators",
+    "SalePageLocators",
 ]

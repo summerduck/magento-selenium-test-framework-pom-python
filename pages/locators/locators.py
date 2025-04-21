@@ -73,9 +73,25 @@ class EcoFriendlyPageLocators(object):
     ADD_TO_COMPARE_BUTTON = (By.CSS_SELECTOR, ".action.tocompare")
 
 
-class CreateAccountPageLocators(object):
-    pass
+class SalePageLocators(object):
+    """
+    Locators for the Sale Page.
+    """
 
+    PAGE_TITLE = (By.ID, "page-title-heading")
 
-class CreateAccountSuccessPageLocators(object):
-    pass
+    # Deal section locators
+    WOMENS_DEALS_SECTION = (By.XPATH, "//span[contains(text(),'Women's Deals')]")
+    MENS_DEALS_SECTION = (By.XPATH, "//span[contains(text(),'Men's Deals')]")
+    GEAR_DEALS_SECTION = (By.XPATH, "//span[contains(text(),'Gear Deals')]")
+
+    # Promotional content locators
+    PROMO_BANNERS = (By.CLASS_NAME, "blocks-promo")
+    DISCOUNT_BANNER = (By.XPATH, "//a[@class='block-promo sale-20-off']")
+    FREE_SHIPPING_BANNER = (By.XPATH, "//a[@class='block-promo sale-free-shipping']")
+    TEES_PROMO = (By.XPATH, "//a[@class='block-promo sale-womens-t-shirts']")
+
+    # Product category links
+    WOMENS_CATEGORIES = (By.CSS_SELECTOR, ".women-deals a")
+    MENS_CATEGORIES = (By.CSS_SELECTOR, ".mens-deals a")
+    GEAR_CATEGORIES = (By.CSS_SELECTOR, ".gear-deals a")
