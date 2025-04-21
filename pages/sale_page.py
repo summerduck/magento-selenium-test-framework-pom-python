@@ -1,6 +1,9 @@
 """Module containing SalePage class for sale page interactions."""
 
+from dataclasses import dataclass
+from typing import Dict, List
 import logging
+from selenium.webdriver.remote.webelement import WebElement
 from pages.base_page import BasePage
 from pages.locators.locators import SalePageLocators as loc
 
@@ -8,102 +11,182 @@ from pages.locators.locators import SalePageLocators as loc
 logger = logging.getLogger(__name__)
 
 
+class SalePageException(Exception):
+    """Base exception for SalePage-specific errors."""
+
+    pass
+
+
+class PromotionalContentError(SalePageException):
+    """Raised when promotional content verification fails."""
+
+    pass
+
+
+@dataclass
+class PromotionalContent:
+    """Structure for promotional content data."""
+
+    discount_text: str = "20% OFF"
+    free_shipping_text: str = "Spend $50 or more — shipping is free!"
+    tees_promo_text: str = "You can't have too many tees"
+
+    @property
+    def promo_mapping(self) -> Dict:
+        """Get mapping of locators to their expected text."""
+        return {
+            loc.DISCOUNT_BANNER: self.discount_text,
+            loc.FREE_SHIPPING_BANNER: self.free_shipping_text,
+            loc.TEES_PROMO: self.tees_promo_text,
+        }
+
+
 class SalePage(BasePage):
-    """Class for interacting with the sale page."""
+    """Class for interacting with the sale page.
 
-    page_url = "/sale.html"
+    Attributes:
+        page_url (str): The relative URL path for the sale page
+        promo_content (PromotionalContent): Container for promotional text content
+    """
 
-    def __init__(self, driver):
-        """Initialize the SalePage instance."""
+    page_url: str = "/sale.html"
+    promo_content: PromotionalContent = PromotionalContent()
+
+    def __init__(self, driver) -> None:
+        """Initialize the SalePage instance.
+
+        Args:
+            driver: WebDriver instance for browser control
+        """
         super().__init__(driver)
         self.sale_page_url = f"{self.base_url}{self.page_url}"
 
-    def open_page(self):
-        """Open the sale page."""
-        logger.info(
-            "Navigating to Sale page at: %s",
-            self.sale_page_url,
-        )
+    def open_page(self) -> None:
+        """Open and verify the sale page is loaded correctly."""
+        logger.info("Navigating to Sale page at: %s", self.sale_page_url)
         self.goto(self.sale_page_url)
         self._verify_page_loaded()
 
-    def _verify_page_loaded(self):
-        """Verify the sale page is loaded correctly."""
+    def _verify_page_loaded(self) -> None:
+        """Verify the sale page is loaded correctly.
+
+        Raises:
+            TimeoutException: If page elements don't load within timeout
+        """
         logger.info("Verifying Sale page elements and content are properly loaded")
         self.wait_for_page_load()
         self._verify_page_title()
 
-    def _verify_page_title(self):
-        """Verify the page title is correct."""
+    def _verify_page_title(self) -> None:
+        """Verify the page title is correct.
+
+        Raises:
+            TimeoutException: If title element is not visible or doesn't match
+        """
         logger.info("Verifying Sale page title")
         self.expect_to_be_visible(loc.PAGE_TITLE)
         self.expect_to_have_text(loc.PAGE_TITLE, "Sale")
 
-    def verify_promotional_banners(self):
-        """Verify promotional banners are present."""
-        logger.info("Verifying promotional banners")
-        self.expect_to_be_visible(loc.PROMO_BANNERS)
-        self.expect_to_be_visible(loc.DISCOUNT_BANNER)
-        self.expect_to_be_visible(loc.FREE_SHIPPING_BANNER)
-        self.expect_to_be_visible(loc.TEES_PROMO)
+    def verify_promotional_banners(self) -> None:
+        """Verify all promotional banners are present and visible.
 
-    def verify_promotional_content(self):
-        """Verify promotional content text."""
+        Raises:
+            TimeoutException: If any banner is not visible within timeout
+        """
+        logger.info("Verifying promotional banners")
+        banners = [
+            loc.PROMO_BANNERS,
+            loc.DISCOUNT_BANNER,
+            loc.FREE_SHIPPING_BANNER,
+            loc.TEES_PROMO,
+        ]
+        for banner in banners:
+            self.expect_to_be_visible(banner)
+
+    def verify_promotional_content(self) -> None:
+        """Verify promotional content text matches expected values.
+
+        Raises:
+            PromotionalContentError: If any promotional text doesn't match expected value
+        """
         logger.info("Verifying promotional content")
 
-        # Dictionary of expected promotional texts
-        promo_texts = {
-            loc.DISCOUNT_BANNER: "20% OFF",
-            loc.FREE_SHIPPING_BANNER: "Spend $50 or more — shipping is free!",
-            loc.TEES_PROMO: "You can't have too many tees",
-        }
-
-        for locator, expected_text in promo_texts.items():
+        for locator, expected_text in self.promo_content.promo_mapping.items():
             try:
                 actual_text = self.get_text(locator)
-                assert (
-                    expected_text in actual_text
-                ), f"Expected text '{expected_text}' not found in '{actual_text}'"
+                if not actual_text or expected_text not in actual_text:
+                    raise PromotionalContentError(
+                        f"Expected text '{expected_text}' not found in '{actual_text}'"
+                    )
                 logger.info("Successfully verified promotional text: %s", expected_text)
             except Exception as e:
                 logger.error(
                     "Failed to verify promotional text '%s': %s", expected_text, str(e)
                 )
-                raise
+                raise PromotionalContentError(str(e)) from e
 
-    def verify_deal_sections(self):
-        """Verify all deal sections are present on the page."""
+    def verify_deal_sections(self) -> None:
+        """Verify all deal sections are present on the page.
+
+        Raises:
+            TimeoutException: If any deal section is not visible
+        """
         logger.info("Verifying deal sections are present")
-
-        # Check each deal section is visible
-        self.expect_to_be_visible(loc.CATEGORIES_MENU)
-        self.expect_to_be_visible(loc.WOMENS_DEALS_MENU_CATEGORY)
-        self.expect_to_be_visible(loc.MENS_DEALS_MENU_CATEGORY)
-        self.expect_to_be_visible(loc.GEAR_DEALS_MENU_CATEGORY)
-
+        sections = [
+            loc.CATEGORIES_MENU,
+            loc.WOMENS_DEALS_MENU_CATEGORY,
+            loc.MENS_DEALS_MENU_CATEGORY,
+            loc.GEAR_DEALS_MENU_CATEGORY,
+        ]
+        for section in sections:
+            self.expect_to_be_visible(section)
         logger.info("All deal sections titles are present on the page")
 
-    def verify_category_links(self):
-        """Verify category links within each deal section."""
+    def verify_category_links(self) -> None:
+        """Verify category links within each deal section.
+
+        Raises:
+            AssertionError: If no links are found or if links are not clickable
+        """
         logger.info("Verifying category links in each deal section")
 
-        # Check women's category links
-        womens_links = self.find_all(loc.WOMENS_CATEGORIES)
-        assert len(womens_links) > 0, "No women's category links found"
-        logger.info("Found %d women's category links", len(womens_links))
+        category_links = {
+            "women's": self._get_category_links(loc.WOMENS_CATEGORIES),
+            "men's": self._get_category_links(loc.MENS_CATEGORIES),
+            "gear": self._get_category_links(loc.GEAR_CATEGORIES),
+        }
 
-        # Check men's category links
-        mens_links = self.find_all(loc.MENS_CATEGORIES)
-        assert len(mens_links) > 0, "No men's category links found"
-        logger.info("Found %d men's category links", len(mens_links))
+        # Verify at least one link is clickable from women's category
+        if category_links["women's"]:
+            self._verify_link_clickable(category_links["women's"][0])
 
-        # Check gear category links
-        gear_links = self.find_all(loc.GEAR_CATEGORIES)
-        assert len(gear_links) > 0, "No gear category links found"
-        logger.info("Found %d gear category links", len(gear_links))
+    def _get_category_links(self, locator: tuple) -> List[WebElement]:
+        """Get category links and verify they exist.
 
-        # Verify at least one link is clickable
-        sample_link = womens_links[0]
-        link_text = sample_link.text
+        Args:
+            locator: Tuple of By strategy and locator string
+
+        Returns:
+            List of WebElement objects representing category links
+
+        Raises:
+            AssertionError: If no links are found
+        """
+        links = self.find_all(locator)
+        category_name = locator[1]  # Extract category name from locator
+        assert len(links) > 0, f"No {category_name} category links found"
+        logger.info("Found %d %s category links", len(links), category_name)
+        return links
+
+    def _verify_link_clickable(self, link: WebElement) -> None:
+        """Verify that a link element is clickable.
+
+        Args:
+            link: WebElement representing the link to verify
+
+        Raises:
+            AssertionError: If the link is not clickable
+        """
+        link_text = link.text
         logger.info("Verifying link '%s' is clickable", link_text)
-        assert sample_link.is_enabled(), f"Link '{link_text}' is not clickable"
+        assert link.is_enabled(), f"Link '{link_text}' is not clickable"
