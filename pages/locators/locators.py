@@ -73,9 +73,44 @@ class EcoFriendlyPageLocators(object):
     ADD_TO_COMPARE_BUTTON = (By.CSS_SELECTOR, ".action.tocompare")
 
 
-class CreateAccountPageLocators(object):
-    pass
+class SalePageLocators(object):
+    """
+    Locators for the Sale Page.
+    """
 
+    PAGE_TITLE = (By.ID, "page-title-heading")
 
-class CreateAccountSuccessPageLocators(object):
-    pass
+    # Deal section locators
+    CATEGORIES_MENU = (By.XPATH, "//div[@class='categories-menu']")
+    WOMENS_DEALS_MENU_CATEGORY = (
+        By.XPATH,
+        '//strong[@class="title"]//span[text()="Women\'s Deals"]',
+    )
+    MENS_DEALS_MENU_CATEGORY = (
+        By.XPATH,
+        '//strong[@class="title"]//span[text()="Mens\'s Deals"]',
+    )
+    GEAR_DEALS_MENU_CATEGORY = (
+        By.XPATH,
+        "//strong[@class='title']//span[text()='Gear Deals']",
+    )
+
+    # Promotional content locators
+    PROMO_BANNERS = (By.CLASS_NAME, "blocks-promo")
+    DISCOUNT_BANNER = (By.XPATH, "//a[@class='block-promo sale-20-off']")
+    FREE_SHIPPING_BANNER = (By.XPATH, "//a[@class='block-promo sale-free-shipping']")
+    TEES_PROMO = (By.XPATH, "//a[@class='block-promo sale-womens-t-shirts']")
+
+    # Product category links
+    WOMENS_CATEGORIES = (
+        By.XPATH,
+        '(//strong[@class="title"][span[text()="Women\'s Deals"]]/following-sibling::ul[@class="items"])[1]//li',
+    )
+    MENS_CATEGORIES = (
+        By.XPATH,
+        '(//strong[@class="title"][span[text()="Mens\'s Deals"]]/following-sibling::ul[@class="items"])[1]//li',
+    )
+    GEAR_CATEGORIES = (
+        By.XPATH,
+        '//strong[@class="title"][span[text()="Gear Deals"]]/following-sibling::ul[@class="items"]//li',
+    )
