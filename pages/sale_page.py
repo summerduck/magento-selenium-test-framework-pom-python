@@ -1,10 +1,8 @@
 """Module containing SalePage class for sale page interactions."""
 
 import logging
-import time
 from pages.base_page import BasePage
 from pages.locators.locators import SalePageLocators as loc
-from selenium.webdriver.common.by import By
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -33,6 +31,11 @@ class SalePage(BasePage):
         """Verify the sale page is loaded correctly."""
         logger.info("Verifying Sale page elements and content are properly loaded")
         self.wait_for_page_load()
+        self._verify_page_title()
+
+    def _verify_page_title(self):
+        """Verify the page title is correct."""
+        logger.info("Verifying Sale page title")
         self.expect_to_be_visible(loc.PAGE_TITLE)
         self.expect_to_have_text(loc.PAGE_TITLE, "Sale")
 
