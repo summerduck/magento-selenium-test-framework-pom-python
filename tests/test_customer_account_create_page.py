@@ -47,7 +47,6 @@ class CustomerAccountCreatePageTest:
                 "Minimum of different classes of characters in password is 3. Classes of characters: Lower Case, Upper Case, Digits, Special Characters.",
             ),
             (None, "No Password", "error", ""),
-            (None, "Very Strong", "success", ""),  # Failed test for framework debuging
         ],
     )
     @mark.validation
