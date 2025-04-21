@@ -35,13 +35,11 @@ class SalePage(BasePage):
         self.wait_for_page_load()
         self.expect_to_be_visible(loc.PAGE_TITLE)
         self.expect_to_have_text(loc.PAGE_TITLE, "Sale")
-        time.sleep(0.5)
 
     def verify_promotional_banners(self):
         """Verify promotional banners are present."""
         logger.info("Verifying promotional banners")
         self.expect_to_be_visible(loc.PROMO_BANNERS)
-        time.sleep(3)
         self.expect_to_be_visible(loc.DISCOUNT_BANNER)
         self.expect_to_be_visible(loc.FREE_SHIPPING_BANNER)
         self.expect_to_be_visible(loc.TEES_PROMO)
