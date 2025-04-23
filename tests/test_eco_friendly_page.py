@@ -1,14 +1,23 @@
 """Module containing tests for the eco-friendly page."""
 
 import logging
+import allure
 from pytest import mark
 
 logger = logging.getLogger(__name__)
 
 
+@allure.epic("E-commerce Platform")
+@allure.feature("Eco-Friendly Page")
 class EcoFriendlyPageTest:
     """Test class for eco-friendly page functionality."""
 
+    @allure.story("Product Sorting")
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Verify products can be sorted by {sort_by}")
+    @allure.description(
+        "Test verifies that products can be sorted by different criteria and validates the correct order"
+    )
     @mark.parametrize("sort_by", ["name", "price", "position"])
     @mark.ui_ux
     def test_product_sorting(
@@ -29,6 +38,12 @@ class EcoFriendlyPageTest:
         eco_friendly_page.get_product_prices()
         eco_friendly_page.verify_products_sorted(sort_by)
 
+    @allure.story("Products Per Page")
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Verify {products_per_page} products per page display")
+    @allure.description(
+        "Test verifies that the correct number of products is displayed per page based on user selection"
+    )
     @mark.parametrize("products_per_page", ["12", "24", "36"])
     @mark.ui_ux
     def test_show_products_per_page(
@@ -49,6 +64,13 @@ class EcoFriendlyPageTest:
         eco_friendly_page.count_products()
         eco_friendly_page.verify_products_per_page(products_per_page)
 
+    @allure.story("Product View Modes")
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Verify product view mode switching")
+    @allure.description(
+        "Test verifies that users can switch between grid and list view modes and product data remains consistent"
+    )
+    @mark.ui_ux
     def test_product_view_mode(
         self,
         eco_friendly_page,
