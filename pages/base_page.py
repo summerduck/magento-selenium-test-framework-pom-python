@@ -153,15 +153,6 @@ class BasePage:
         logger.debug("Waiting for element with locator: %s", locator)
         return self.wait.until(EC.presence_of_element_located(locator))
 
-    def wait_for_timeout(self, timeout: float) -> None:
-        """Explicit wait for specified time.
-
-        Args:
-            timeout: Time to wait in seconds
-        """
-        logger.debug("Waiting for %s seconds", timeout)
-        self.driver.implicitly_wait(timeout)
-
     # Element interaction methods
     def send_keys(self, locator: Tuple[By, str], text: Optional[str]) -> None:
         """Send keys to element.
