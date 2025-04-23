@@ -10,4 +10,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Run tests
-        run: pytest
+        env:
+          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+        run: pytest -v -n auto --junitxml="result.xml" --html=report.html --self-contained-html --log-format='%(asctime)s [%(levelname)s] [%(name)s] %(message)s' --reruns 2
