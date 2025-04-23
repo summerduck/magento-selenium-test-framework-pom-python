@@ -179,6 +179,7 @@ test-logs/
 # Report files
 report.html
 result.xml
+allure-report/
 
 # VSCode settings
 .vscode
