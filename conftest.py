@@ -5,11 +5,10 @@ import os
 import re
 import shutil
 import sys
-import random
-from typing import Generator
 from dotenv import load_dotenv
 
 import pytest
+import allure
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -24,6 +23,7 @@ sys.stdout = sys.stderr
 # Base directory for test logs
 LOG_DIR = "test-logs"
 FAILED_LOG_DIR = os.path.join(LOG_DIR, "failed_tests")
+SCREENSHOTS_DIR = os.path.join(LOG_DIR, "screenshots")
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -94,6 +94,7 @@ def make_dir_for_logs():
     # Create a new log directory
     os.makedirs(LOG_DIR, exist_ok=True)
     os.makedirs(FAILED_LOG_DIR, exist_ok=True)
+    os.makedirs(SCREENSHOTS_DIR, exist_ok=True)
 
 
 def pytest_configure(config):
@@ -187,3 +188,63 @@ def pytest_runtest_logreport(report):
         failed_log_file = os.path.join(FAILED_LOG_DIR, f"{test_name}.log")
         if os.path.exists(log_file):
             os.rename(log_file, failed_log_file)
+
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """
+    Capture screenshots on test failures and attach them to Allure reports.
+    """
+    outcome = yield
+    report = outcome.get_result()
+
+    # Capture screenshot on failure
+    if report.when == "call" and report.failed:
+        try:
+            # Check if driver fixture is in use
+            driver = item.funcargs.get("driver", None)
+            if driver:
+                # Create screenshots directory if it doesn't exist
+                os.makedirs(SCREENSHOTS_DIR, exist_ok=True)
+
+                # Generate a safe filename
+                test_name = get_last_element(sanitize_nodeid(item.nodeid))
+                timestamp = re.sub(r"[^0-9]", "", report.longrepr.reprcrash.message)[:8]
+                screenshot_name = f"{test_name}_{timestamp}.png"
+                screenshot_path = os.path.join(SCREENSHOTS_DIR, screenshot_name)
+
+                # Take screenshot
+                driver.save_screenshot(screenshot_path)
+                logger.info("Screenshot saved to %s", screenshot_path)
+
+                # Attach screenshot to Allure report
+                with open(screenshot_path, "rb") as f:
+                    allure.attach(
+                        f.read(),
+                        name=f"Screenshot on failure: {test_name}",
+                        attachment_type=allure.attachment_type.PNG,
+                    )
+
+                # Get page source to help with debugging
+                page_source = driver.page_source
+                allure.attach(
+                    page_source,
+                    name="Page Source",
+                    attachment_type=allure.attachment_type.HTML,
+                )
+
+                # Console logs if available
+                try:
+                    browser_logs = driver.get_log("browser")
+                    if browser_logs:
+                        logs_text = "\n".join([str(log) for log in browser_logs])
+                        allure.attach(
+                            logs_text,
+                            name="Browser Console Logs",
+                            attachment_type=allure.attachment_type.TEXT,
+                        )
+                except Exception as e:
+                    logger.warning("Failed to capture browser logs: %s", str(e))
+
+        except Exception as e:
+            logger.error("Failed to capture screenshot: %s", str(e))
