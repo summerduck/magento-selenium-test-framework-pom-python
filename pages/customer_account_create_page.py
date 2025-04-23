@@ -1,9 +1,8 @@
 """Module containing CustomerAccountCreatePage class for account creation page interactions."""
 
 import logging
-from time import sleep
 from selenium.webdriver.common.keys import Keys
-from data.users import UserData, User
+from data.users import UserData
 from pages.base_page import BasePage
 from pages.locators import CustomerAccountCreatePageLocators as loc
 

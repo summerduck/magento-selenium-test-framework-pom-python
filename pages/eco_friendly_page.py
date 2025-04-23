@@ -2,9 +2,9 @@
 
 import logging
 import time
+from selenium.webdriver.common.by import By
 from pages.base_page import BasePage
 from pages.locators import EcoFriendlyPageLocators as loc
-from selenium.webdriver.common.by import By
 
 # Initialize logger
 logger = logging.getLogger(__name__)
