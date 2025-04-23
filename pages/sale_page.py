@@ -6,6 +6,7 @@ import logging
 from selenium.webdriver.remote.webelement import WebElement
 from pages.base_page import BasePage
 from pages.locators.locators import SalePageLocators as loc
+import allure
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -64,12 +65,14 @@ class SalePage(BasePage):
         super().__init__(driver)
         self.sale_page_url = f"{self.base_url}{self.page_url}"
 
+    @allure.step("Opening the Sale page")
     def open_page(self) -> None:
         """Open and verify the sale page is loaded correctly."""
         logger.info("Navigating to Sale page at: %s", self.sale_page_url)
         self.goto(self.sale_page_url)
         self._verify_page_loaded()
 
+    @allure.step("Verifying page is loaded correctly")
     def _verify_page_loaded(self) -> None:
         """Verify the sale page is loaded correctly.
 
@@ -80,6 +83,7 @@ class SalePage(BasePage):
         self.wait_for_page_load()
         self._verify_page_title()
 
+    @allure.step("Verifying page title")
     def _verify_page_title(self) -> None:
         """Verify the page title is correct.
 
@@ -90,6 +94,7 @@ class SalePage(BasePage):
         self.expect_to_be_visible(loc.PAGE_TITLE)
         self.expect_to_have_text(loc.PAGE_TITLE, "Sale")
 
+    @allure.step("Verifying promotional banners are displayed")
     def verify_promotional_banners(self) -> None:
         """Verify all promotional banners are present and visible.
 
@@ -104,8 +109,10 @@ class SalePage(BasePage):
             loc.TEES_PROMO,
         ]
         for banner in banners:
-            self.expect_to_be_visible(banner)
+            with allure.step(f"Checking banner visibility: {banner[1]}"):
+                self.expect_to_be_visible(banner)
 
+    @allure.step("Verifying promotional content text")
     def verify_promotional_content(self) -> None:
         """Verify promotional content text matches expected values.
 
@@ -116,18 +123,27 @@ class SalePage(BasePage):
 
         for locator, expected_text in self.promo_content.promo_mapping.items():
             try:
-                actual_text = self.get_text(locator)
-                if not actual_text or expected_text not in actual_text:
-                    raise PromotionalContentError(
-                        f"Expected text '{expected_text}' not found in '{actual_text}'"
+                with allure.step(
+                    f"Verifying text '{expected_text}' in element {locator[1]}"
+                ):
+                    actual_text = self.get_text(locator)
+                    allure.attach(
+                        actual_text, "Actual Text", allure.attachment_type.TEXT
                     )
-                logger.info("Successfully verified promotional text: %s", expected_text)
+                    if not actual_text or expected_text not in actual_text:
+                        raise PromotionalContentError(
+                            f"Expected text '{expected_text}' not found in '{actual_text}'"
+                        )
+                    logger.info(
+                        "Successfully verified promotional text: %s", expected_text
+                    )
             except Exception as e:
                 logger.error(
                     "Failed to verify promotional text '%s': %s", expected_text, str(e)
                 )
                 raise PromotionalContentError(str(e)) from e
 
+    @allure.step("Verifying deal sections")
     def verify_deal_sections(self) -> None:
         """Verify all deal sections are present on the page.
 
@@ -142,9 +158,11 @@ class SalePage(BasePage):
             loc.GEAR_DEALS_MENU_CATEGORY,
         ]
         for section in sections:
-            self.expect_to_be_visible(section)
+            with allure.step(f"Checking section visibility: {section[1]}"):
+                self.expect_to_be_visible(section)
         logger.info("All deal sections titles are present on the page")
 
+    @allure.step("Verifying category links")
     def verify_category_links(self) -> None:
         """Verify category links within each deal section.
 
@@ -161,8 +179,10 @@ class SalePage(BasePage):
 
         # Verify at least one link is clickable from women's category
         if category_links["women's"]:
-            self._verify_link_clickable(category_links["women's"][0])
+            with allure.step("Verifying a women's category link is clickable"):
+                self._verify_link_clickable(category_links["women's"][0])
 
+    @allure.step("Getting category links: {locator[1]}")
     def _get_category_links(self, locator: tuple) -> List[WebElement]:
         """Get category links and verify they exist.
 
@@ -177,10 +197,19 @@ class SalePage(BasePage):
         """
         links = self.find_all(locator)
         category_name = locator[1]  # Extract category name from locator
-        assert len(links) > 0, f"No {category_name} category links found"
-        logger.info("Found %d %s category links", len(links), category_name)
+
+        with allure.step(f"Verifying {category_name} links exist"):
+            assert len(links) > 0, f"No {category_name} category links found"
+            allure.attach(
+                str(len(links)),
+                f"Number of {category_name} links",
+                allure.attachment_type.TEXT,
+            )
+            logger.info("Found %d %s category links", len(links), category_name)
+
         return links
 
+    @allure.step("Verifying link is clickable: {link.text}")
     def _verify_link_clickable(self, link: WebElement) -> None:
         """Verify that a link element is clickable.
 
