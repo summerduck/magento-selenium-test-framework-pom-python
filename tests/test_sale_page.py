@@ -1,14 +1,23 @@
 """Module containing tests for the sale page."""
 
 import logging
+import allure
 from pytest import mark
 
 logger = logging.getLogger(__name__)
 
 
+@allure.epic("E-commerce Platform")
+@allure.feature("Sale Page")
 class SalePageTest:
     """Test class for sale page functionality."""
 
+    @allure.story("Basic Page Functionality")
+    @allure.severity(allure.severity_level.CRITICAL)
+    @allure.title("Verify Sale page loads successfully")
+    @allure.description(
+        "Test verifies that the Sale page opens correctly and title is displayed"
+    )
     @mark.smoke
     def test_open_sale_page(
         self,
@@ -21,6 +30,12 @@ class SalePageTest:
         """
         sale_page.open_page()
 
+    @allure.story("Promotional Content")
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Verify promotional banners display correctly")
+    @allure.description(
+        "Test verifies promotional banners are displayed and contain the expected content"
+    )
     @mark.ui_ux
     def test_promotional_banners(
         self,
@@ -36,6 +51,12 @@ class SalePageTest:
         sale_page.verify_promotional_banners()
         sale_page.verify_promotional_content()
 
+    @allure.story("Deal Sections")
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Verify deal sections and category links")
+    @allure.description(
+        "Test verifies all deal sections are present and category links are functional"
+    )
     @mark.ui_ux
     def test_deal_sections(
         self,

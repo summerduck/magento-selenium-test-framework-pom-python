@@ -11,9 +11,9 @@ An enterprise-grade test automation framework designed for Magento e-commerce pl
 - **Programming Language**: Python 3.x
 - **Testing Framework**: pytest
 - **Web Automation**: Selenium WebDriver
-- **Reporting**: Allure Framework (TBD)
+- **Reporting**: Allure Report
 - **Logging**: Python logging with custom formatters
-- **CI/CD Integration**: GitHub Actions (TBD)
+- **CI/CD Integration**: GitHub Actions
 - **Version Control**: Git with Conventional Commits
 
 ## Prerequisites
@@ -22,6 +22,7 @@ An enterprise-grade test automation framework designed for Magento e-commerce pl
 - Chrome browser
 - ChromeDriver (matching your Chrome version)
 - Git
+- Allure
 
 ## Project Structure
 ```plaintext
@@ -60,7 +61,7 @@ pytest
 # Run tests in parallel
 pytest -n auto
 
-# Generate Allure report (TBD)
-pytest --alluredir=./reports
-allure serve ./reports
-```
+# Check Allure report
+allure serve allure-report
+
+

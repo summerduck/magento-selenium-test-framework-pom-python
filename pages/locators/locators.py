@@ -104,13 +104,13 @@ class SalePageLocators(object):
     # Product category links
     WOMENS_CATEGORIES = (
         By.XPATH,
-        '(//strong[@class="title"][span[text()="Women\'s Deals"]]/following-sibling::ul[@class="items"])[1]//li',
+        '(//strong[@class="title"][span[text()="Women\'s Deals"]]/following-sibling::ul[@class="items"])[1]//li//a',
     )
     MENS_CATEGORIES = (
         By.XPATH,
-        '(//strong[@class="title"][span[text()="Mens\'s Deals"]]/following-sibling::ul[@class="items"])[1]//li',
+        '(//strong[@class="title"][span[text()="Mens\'s Deals"]]/following-sibling::ul[@class="items"])[1]//li//a',
     )
     GEAR_CATEGORIES = (
         By.XPATH,
-        '//strong[@class="title"][span[text()="Gear Deals"]]/following-sibling::ul[@class="items"]//li',
+        '//strong[@class="title"][span[text()="Gear Deals"]]/following-sibling::ul[@class="items"]//li//a',
     )
