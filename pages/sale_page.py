@@ -177,10 +177,11 @@ class SalePage(BasePage):
             "gear": self._get_category_links(loc.GEAR_CATEGORIES),
         }
 
-        # Verify at least one link is clickable from women's category
-        if category_links["women's"]:
-            with allure.step("Verifying a women's category link is clickable"):
-                self._verify_link_clickable(category_links["women's"][0])
+        # Verify links are clickable for each category
+        for category, links in category_links.items():
+            if links:  # Check if list is not empty
+                with allure.step(f"Verifying {category} category links are enabled"):
+                    self._verify_link_enabled(links[0])
 
     @allure.step("Getting category links: {locator[1]}")
     def _get_category_links(self, locator: tuple) -> List[WebElement]:
@@ -209,16 +210,15 @@ class SalePage(BasePage):
 
         return links
 
-    @allure.step("Verifying link is clickable: {link.text}")
-    def _verify_link_clickable(self, link: WebElement) -> None:
-        """Verify that a link element is clickable.
+    @allure.step("Verifying link is enabled")
+    def _verify_link_enabled(self, link: WebElement) -> None:
+        """Verify that a link element is enabled.
 
         Args:
             link: WebElement representing the link to verify
 
         Raises:
-            AssertionError: If the link is not clickable
+            AssertionError: If the link is not enabled
         """
-        link_text = link.text
-        logger.info("Verifying link '%s' is clickable", link_text)
-        assert link.is_enabled(), f"Link '{link_text}' is not clickable"
+        logger.info("Verifying link is enabled")
+        assert link.is_displayed() and link.is_enabled(), "Link is not enabled"
