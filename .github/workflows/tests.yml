@@ -98,11 +98,7 @@ jobs:
         uses: browser-actions/setup-chrome@latest
         
       - name: Create test directories
-        run: |
-          mkdir -p test-results
-          mkdir -p test-logs
-          mkdir -p allure-results
-          mkdir -p screenshots
+        run: mkdir -p test-results test-logs allure-results screenshots
           
       - name: Run ${{ matrix.test-type }} tests
         env:
