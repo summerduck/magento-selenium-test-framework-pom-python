@@ -1,4 +1,4 @@
-name: Code Quality & Security (TBD)
+name: Code Quality 
 
 on:
   push:
