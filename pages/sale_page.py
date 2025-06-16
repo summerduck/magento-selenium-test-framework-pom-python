@@ -3,10 +3,10 @@
 from dataclasses import dataclass
 from typing import Dict, List
 import logging
+import allure
 from selenium.webdriver.remote.webelement import WebElement
 from pages.base_page import BasePage
 from pages.locators.locators import SalePageLocators as loc
-import allure
 
 # Initialize logger
 logger = logging.getLogger(__name__)

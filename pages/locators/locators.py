@@ -5,7 +5,7 @@ Locators module for the Magento test framework.
 from selenium.webdriver.common.by import By
 
 
-class CustomerAccountCreatePageLocators(object):
+class CustomerAccountCreatePageLocators:
     """
     Locators for the Customer Account Create Page.
     """
@@ -33,7 +33,7 @@ class CustomerAccountCreatePageLocators(object):
     PASSWORD_ERROR = (By.ID, "password-error")
 
 
-class EcoFriendlyPageLocators(object):
+class EcoFriendlyPageLocators:
     """
     Locators for the Eco-Friendly Page.
     """
@@ -73,7 +73,7 @@ class EcoFriendlyPageLocators(object):
     ADD_TO_COMPARE_BUTTON = (By.CSS_SELECTOR, ".action.tocompare")
 
 
-class SalePageLocators(object):
+class SalePageLocators:
     """
     Locators for the Sale Page.
     """
