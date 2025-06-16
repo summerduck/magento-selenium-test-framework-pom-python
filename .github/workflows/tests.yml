@@ -173,14 +173,14 @@ jobs:
     if: always()
     steps:
       - name: Log failure notification
-        if: failure()
+        if: needs.code-quality.result == 'failure' || needs.test.result == 'failure'
         run: |
           echo "Test failure detected!"
           echo "This is a placeholder notification for the demo project."
           echo "In a real project, this would trigger notifications via Slack, email, or other channels."
 
       - name: Log success notification
-        if: success()
+        if: needs.code-quality.result == 'success' && needs.test.result == 'success'
         run: |
           echo "✅ All tests passed successfully!"
           echo "Test results are available in the Allure report."
