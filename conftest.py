@@ -126,6 +126,15 @@ def sanitize_nodeid(node_id):
     tokens[-1] = re.sub(r"-+", "-", tokens[-1])
     node_id = "/".join([x for x in tokens if x != "()"])
     node_id = re.sub(r"\[(.+)\]", r"-\1", node_id)
+
+    # Sanitize invalid characters for file systems
+    # Remove or replace characters that are invalid in Windows/NTFS file names
+    invalid_chars = r'[<>:"/\\|?*\r\n]'
+    node_id = re.sub(invalid_chars, "-", node_id)
+
+    # Clean up multiple consecutive dashes
+    node_id = re.sub(r"-+", "-", node_id)
+
     return node_id
 
 
