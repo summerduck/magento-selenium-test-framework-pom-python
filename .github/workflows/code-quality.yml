@@ -44,11 +44,4 @@ jobs:
             echo "❌ Pylint found issues that need to be addressed"
             exit $pylint_exit_code
           fi
-          echo "✅ Pylint analysis completed successfully"
-
-      - name: Store cache
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          path: .pip_cache
-          key: pip-cache-${{ hashFiles('requirements.txt') }} 
+          echo "✅ Pylint analysis completed successfully" 
