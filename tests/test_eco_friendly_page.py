@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 
 @allure.epic("E-commerce Platform")
 @allure.feature("Eco-Friendly Page")
+@mark.regression
+@mark.eco_friendly_page
 class EcoFriendlyPageTest:
     """Test class for eco-friendly page functionality."""
 

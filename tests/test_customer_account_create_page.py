@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 
 @allure.epic("E-commerce Platform")
 @allure.feature("Account Creation")
+@mark.regression
+@mark.account_creation_page
 class CustomerAccountCreatePageTest:
     """Test class for customer account creation page functionality."""
 

@@ -68,7 +68,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test-type: [smoke, regression]
+        test-type: [smoke, account_creation_page, eco_friendly_page, sale_page]
         
     runs-on: ubuntu-latest
     

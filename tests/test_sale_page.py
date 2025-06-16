@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 
 @allure.epic("E-commerce Platform")
 @allure.feature("Sale Page")
+@mark.regression
+@mark.sale_page
 class SalePageTest:
     """Test class for sale page functionality."""
 
