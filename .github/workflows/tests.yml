@@ -1,15 +1,175 @@
 name: Selenium Tests
-on: [push, pull_request]
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch: # Manual trigger
+  schedule:
+    - cron: '0 2 * * 1-5' # Run at 2 AM weekdays
+
+env:
+  PYTHON_VERSION: '3.11'
+  
 jobs:
-  test:
+  # Lint checks only
+  code-quality:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            
+      - name: Install linting dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint black
+          
+      - name: Lint with pylint
+        run: |
+          pylint -j0 --ignore=conftest.py tests utils pages data
+          
+      - name: Check code formatting with black
+        run: black --check --diff .
+
+  # Simplified test execution
+  test:
+    needs: code-quality
+    strategy:
+      fail-fast: false
+      matrix:
+        test-type: [smoke, regression]
+        
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            
       - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Run tests
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      - name: Set up Chrome
+        uses: browser-actions/setup-chrome@latest
+        
+      - name: Create test directories
+        run: |
+          mkdir -p test-results
+          mkdir -p test-logs
+          mkdir -p allure-results
+          mkdir -p screenshots
+          
+      - name: Run ${{ matrix.test-type }} tests
         env:
           USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
-        run: pytest -v -n auto --junitxml="result.xml" --html=report.html --self-contained-html --log-format='%(asctime)s [%(levelname)s] [%(name)s] %(message)s' --reruns 2
+          BROWSER: chrome
+          HEADLESS: true
+          SCREENSHOT_ON_FAILURE: true
+        run: |
+          pytest -v -m ${{ matrix.test-type }} \
+            --junitxml="test-results/junit-${{ matrix.test-type }}.xml" \
+            --html="test-results/report-${{ matrix.test-type }}.html" \
+            --self-contained-html \
+            --alluredir=allure-results \
+            --reruns 2 \
+            --reruns-delay 1 \
+            --maxfail=5 \
+            --tb=short
+            
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.test-type }}
+          path: |
+            test-results/
+            test-logs/
+            screenshots/
+            allure-results/
+          retention-days: 30
+
+  # Generate and publish Allure report
+  allure-report:
+    needs: test
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          
+      - name: Merge Allure results
+        run: |
+          mkdir -p allure-results
+          find artifacts -name "allure-results" -type d -exec cp -r {}/* allure-results/ \;
+          
+      - name: Generate Allure Report
+        uses: simple-elf/allure-report-action@master
+        if: always()
+        with:
+          allure_results: allure-results
+          allure_report: allure-report
+          gh_pages: gh-pages
+          allure_history: allure-history
+          
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-history
+          destination_dir: allure-report
+
+  # Notify on failure or success
+  notify:
+    needs: [code-quality, test]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Log failure notification
+        if: failure()
+        run: |
+          echo "Test failure detected!"
+          echo "This is a placeholder notification for the demo project."
+          echo "In a real project, this would trigger notifications via Slack, email, or other channels."
+
+      - name: Log success notification
+        if: success()
+        run: |
+          echo "✅ All tests passed successfully!"
+          echo "Test results are available in the Allure report."
+          echo "In a real project, this would trigger success notifications via Slack, email, or other channels."
+
