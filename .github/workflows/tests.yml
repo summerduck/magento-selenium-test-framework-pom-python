@@ -9,6 +9,12 @@ on:
   schedule:
     - cron: '0 2 * * 1-5' # Run at 2 AM weekdays
 
+# Add these permissions at the workflow level
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 env:
   PYTHON_VERSION: '3.11'
   
@@ -134,6 +140,12 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: always()
+    
+    # Add permissions specifically for this job
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     
     steps:
       - name: Checkout code
