@@ -15,6 +15,7 @@ An enterprise-grade test automation framework designed for Magento e-commerce pl
 - **Parallel Execution**: Optimized test execution with pytest-xdist
 - **Rich Reporting**: Detailed test reports with Allure
 - **CI/CD Integration**: Automated testing pipeline with GitHub Actions
+- **GitHub Actions integration**: Published test reports to GitHub Pages
 - **Type Safety**: Comprehensive type hints for better code quality
 - **Logging**: Structured logging with custom formatters
 
