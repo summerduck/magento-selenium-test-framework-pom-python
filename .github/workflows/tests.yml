@@ -231,7 +231,7 @@ jobs:
 
   # Notify on failure or success
   notify:
-    needs: [code-quality, test]
+    needs: [test]
     runs-on: ubuntu-latest
     if: always()
     steps:
