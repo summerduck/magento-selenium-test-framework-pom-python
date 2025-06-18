@@ -232,6 +232,17 @@ jobs:
           allure_history: allure-history
           allure_results: allure-results
           
+      - name: Check if allure-history exists
+        run: |
+          if [ -d "allure-history" ] && [ "$(ls -A allure-history)" ]; then
+            echo "allure-history directory exists and is not empty"
+            ls -la allure-history/
+          else
+            echo "allure-history directory is empty or does not exist"
+            mkdir -p allure-history
+            echo "<h1>No test results available</h1>" > allure-history/index.html
+          fi
+          
       - name: Publish test report
         uses: peaceiris/actions-gh-pages@v3
         if: always()
@@ -239,6 +250,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: allure-history
+          force_orphan: true
 
   # Notify on failure or success
   notify:
