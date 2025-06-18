@@ -11,7 +11,7 @@ on:
 
 # Add these permissions at the workflow level
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
