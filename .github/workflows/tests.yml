@@ -163,7 +163,7 @@ jobs:
       - name: Merge Allure results
         run: |
           mkdir -p allure-results
-          find artifacts -name "allure-results" -type d -exec cp -r {}/* allure-results/ \;
+          find artifacts -name "allure-results" -type d -exec cp -r {}/* allure-results/ \; || true
           ls -la allure-results/ || echo "No allure results found"
           
       - name: Check if gh-pages branch exists
@@ -176,7 +176,7 @@ jobs:
           fi
           
       - name: Load test report history
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         if: steps.check-branch.outputs.branch_exists == 'true'
         continue-on-error: true
         with:
@@ -220,7 +220,7 @@ jobs:
           ls -la allure-history/
           
       - name: Publish test report
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         if: always()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -231,19 +231,19 @@ jobs:
 
   # Notify on failure or success
   notify:
-    needs: [test]
+    needs: [test, allure-report]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Log failure notification
-        if: needs.code-quality.result == 'failure' || needs.test.result == 'failure'
+        if: needs.test.result == 'failure' || needs.allure-report.result == 'failure'
         run: |
           echo "Test failure detected!"
           echo "This is a placeholder notification for the demo project."
           echo "In a real project, this would trigger notifications via Slack, email, or other channels."
 
       - name: Log success notification
-        if: needs.code-quality.result == 'success' && needs.test.result == 'success'
+        if: needs.test.result == 'success' && needs.allure-report.result == 'success'
         run: |
           echo "✅ All tests passed successfully!"
           echo "Test results are available in the Allure report."
