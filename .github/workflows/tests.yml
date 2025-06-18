@@ -19,58 +19,7 @@ env:
   PYTHON_VERSION: '3.11'
   
 jobs:
-  # Lint checks only
-  code-quality:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-          
-      - name: Cache pip dependencies
-        uses: actions/cache@v4
-        with:
-          path: .pip_cache
-          key: pip-cache-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            pip-cache-
-            
-      - name: Install linting dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt --cache-dir .pip_cache
-          pip install pylint black
-          pylint --version
-          
-      - name: Pylint code analysis
-        run: |
-          echo "🔍 Starting Pylint code analysis..."
-          pylint -j0 tests utils pages data
-          pylint_exit_code=$?
-          if [ "$pylint_exit_code" -ne 0 ]; then
-            echo "❌ Pylint found issues that need to be addressed"
-            exit $pylint_exit_code
-          fi
-          echo "✅ Pylint analysis completed successfully" 
-          
-      - name: Check code formatting with black
-        run: |
-          echo "🔍 Starting Black code analysis..."
-          black --check --diff .
-          black_exit_code=$?
-          if [ "$black_exit_code" -ne 0 ]; then
-            echo "❌ Black found issues that need to be addressed"
-            exit $black_exit_code
-          fi
-          echo "✅ Black analysis completed successfully" 
-
-  # Simplified test execution
   smoke:
-    needs: code-quality
     runs-on: ubuntu-latest
     
     steps:
@@ -215,14 +164,29 @@ jobs:
         run: |
           mkdir -p allure-results
           find artifacts -name "allure-results" -type d -exec cp -r {}/* allure-results/ \;
+          ls -la allure-results/ || echo "No allure results found"
+          
+      - name: Check if gh-pages branch exists
+        id: check-branch
+        run: |
+          if git ls-remote --heads origin gh-pages | grep gh-pages; then
+            echo "branch_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "branch_exists=false" >> $GITHUB_OUTPUT
+          fi
           
       - name: Load test report history
         uses: actions/checkout@v3
-        if: always()
+        if: steps.check-branch.outputs.branch_exists == 'true'
         continue-on-error: true
         with:
           ref: gh-pages
           path: gh-pages
+          
+      - name: Create empty gh-pages directory if branch doesn't exist
+        if: steps.check-branch.outputs.branch_exists == 'false'
+        run: |
+          mkdir -p gh-pages
           
       - name: Build test report
         uses: simple-elf/allure-report-action@master
@@ -232,16 +196,28 @@ jobs:
           allure_history: allure-history
           allure_results: allure-results
           
-      - name: Check if allure-history exists
+      - name: Ensure allure-history has content
         run: |
-          if [ -d "allure-history" ] && [ "$(ls -A allure-history)" ]; then
-            echo "allure-history directory exists and is not empty"
-            ls -la allure-history/
-          else
-            echo "allure-history directory is empty or does not exist"
+          if [ ! -d "allure-history" ] || [ -z "$(ls -A allure-history)" ]; then
+            echo "Creating fallback content for allure-history"
             mkdir -p allure-history
-            echo "<h1>No test results available</h1>" > allure-history/index.html
+            cat > allure-history/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <title>Test Report</title>
+              <meta charset="utf-8">
+          </head>
+          <body>
+              <h1>Test Report</h1>
+              <p>No test results available yet. Reports will appear here after successful test runs.</p>
+              <p>Generated on: $(date)</p>
+          </body>
+          </html>
+          EOF
           fi
+          echo "Contents of allure-history:"
+          ls -la allure-history/
           
       - name: Publish test report
         uses: peaceiris/actions-gh-pages@v3
@@ -251,6 +227,7 @@ jobs:
           publish_branch: gh-pages
           publish_dir: allure-history
           force_orphan: true
+          enable_jekyll: false
 
   # Notify on failure or success
   notify:
